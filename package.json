@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "@types/sharp": "^0.31.1",
+    "concurrently": "^10.0.3"
+  },
+  "scripts": {
+    "dev:install": "npm install && cd frontend && npm install && cd .. && cd backend && npm install",
+    "dev:backend": "cd backend && npm run start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "dependencies": {
+    "path": "^0.12.7"
+  }
+}
