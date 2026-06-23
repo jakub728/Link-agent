@@ -6,9 +6,12 @@ import express, {
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import cookieParser from "cookie-parser";
 import { ZodError } from "zod";
-import linkRouter from "./routes/link";
 import { connectDB } from "./utils/connectDB";
+import generateRouter from "./routes/generateRoutes";
+import userRouter from "./routes/userRoutes";
+import promptRouter from "./routes/promptsRoutes";
 
 dotenv.config();
 const app = express();
@@ -18,15 +21,24 @@ const connect = async () => {
   await connectDB();
 };
 connect()
-  .then(() => console.log("Próba połączenia zainicjowana..."))
-  .catch((err) => console.error("Błąd podczas inicjalizacji:", err));
+  .then(() => console.log("Połączono z bazą danych."))
+  .catch((err) => console.error("Błąd podczas łączenia z bazą danych:", err));
 
 //! MIDDLEWARE
 dotenv.config();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(cookieParser());
 
-app.use("/link", linkRouter);
+//! ROUTY
+app.use("/user", userRouter);
+app.use("/prompt", promptRouter);
+app.use("/generate", generateRouter);
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 //! GLOBAL ERROR HANDLER

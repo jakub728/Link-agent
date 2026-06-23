@@ -6,7 +6,6 @@ import express, {
 import axios from "axios";
 import { chromium } from "playwright";
 import { type DataFromLink } from "../types/generatedInterface";
-import AIConfig from "../model/prompt";
 import GeneratedData from "../model/generated";
 import { convertAndSaveImage } from "../utils/imageConverter";
 import { generateSocialContent } from "../utils/aiService";
@@ -14,8 +13,9 @@ import { generateSocialContent } from "../utils/aiService";
 const router = express.Router();
 
 //Pobieranie danych z linku
+//http:localhost:5000/link/data-from
 router.post(
-  "/from-link",
+  "/data-from-link",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let browser;
@@ -75,80 +75,9 @@ router.post(
   },
 );
 
-//? Pobierz prompty
-// http://localhost:5000/link/get-prompt
-router.get(
-  "/get-prompt",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      console.log("Pobieram prompty");
-
-      let prompts = await AIConfig.findOne();
-
-      if (!prompts) {
-        prompts = new AIConfig();
-        await prompts.save();
-      }
-
-      return res.status(200).json({
-        message: "Pobrano prompty",
-        prompts: prompts,
-      });
-    } catch (error: any) {
-      console.error("Błąd pobierania promptów:", error);
-      next(error);
-    }
-  },
-);
-
-//? Zmiana promptów
-// http://localhost:5000/link/edit-prompt
-router.post(
-  "/edit-prompt",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const {
-        systemPrompt,
-        allowedCategories,
-        x,
-        facebook,
-        linkedin,
-        reddit,
-        wykop,
-        discord,
-        telegram,
-      } = req.body;
-
-      const updatedPrompts = await AIConfig.findOneAndUpdate(
-        {},
-        {
-          systemPrompt,
-          allowedCategories,
-          x,
-          facebook,
-          linkedin,
-          reddit,
-          wykop,
-          discord,
-          telegram,
-        },
-        { new: true, upsert: true, runValidators: true },
-      );
-
-      return res.status(200).json({
-        message: "Konfiguracja pól oraz promptu AI została zaktualizowana!",
-        prompts: updatedPrompts,
-      });
-    } catch (error: any) {
-      console.error("Błąd edytowania promptów:", error);
-      next(error);
-    }
-  },
-);
-
 //Generowanie treści na wszystkie sociale na raz
 router.post(
-  "/generate-content",
+  "/content",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { title, description, link, imageUrl } = req.body;
@@ -167,7 +96,7 @@ router.post(
             responseType: "arraybuffer",
           });
           const buffer = Buffer.from(response.data);
-          localJpgUrl = await convertAndSaveImage(buffer);
+          localJpgUrl = await convertAndSaveImage(buffer, imageUrl);
 
           if (!localJpgUrl) throw new Error("Konwersja zwróciła null");
         } catch (err) {

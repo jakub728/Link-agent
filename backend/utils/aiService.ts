@@ -1,18 +1,25 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import {
   type ISocialPost,
   type GeneratingInterface,
 } from "../types/generatedInterface";
 import AIConfig from "../model/prompt";
 import dotenv from "dotenv";
+import Groq from "groq-sdk";
 
 dotenv.config();
 
-const apiKey = process.env.GEMINI_API_KEY;
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const ai = new GoogleGenAI({
-  apiKey: apiKey,
-});
+interface IGeminiRawOutput {
+  categories: string[];
+  x: { title: string; content: string };
+  facebook: { title: string; content: string };
+  linkedin: { title: string; content: string };
+  reddit: { title: string; content: string; subreddit: string[] };
+  wykop: { title: string; content: string };
+  discord: { title: string; content: string };
+  telegram: { title: string; content: string };
+}
 
 export async function generateSocialContent(
   title: string,
@@ -28,172 +35,73 @@ export async function generateSocialContent(
   const prompt = `
     ${configDb.systemPrompt}
 
-    Tytuł: ${title}
-    Opis: ${description || ""}
+    Tytuł artykułu: ${title}
+    Opis artykułu: ${description || ""}
 
-    Dozwolone kategorie do wyboru (wybierz tylko najbardziej pasujące):
+    Dozwolone kategorie do wyboru (wybierz od 1 do 3 najbardziej pasujących z tej listy):
     ${configDb.allowedCategories.map((cat) => `"${cat}"`).join(", ")}.
+
+    Zwróć wynik jako obiekt JSON zgodny z poniższymi wytycznymi dla każdej platformy:
+    - x: Tytuł: ${configDb.x.titleDescription} | Treść: ${configDb.x.contentDescription}
+    - facebook: Tytuł: ${configDb.facebook.titleDescription} | Treść: ${configDb.facebook.contentDescription}
+    - linkedin: Tytuł: ${configDb.linkedin.titleDescription} | Treść: ${configDb.linkedin.contentDescription}
+    - reddit: Tytuł: ${configDb.reddit.titleDescription} | Treść: ${configDb.reddit.contentDescription} | subreddity: ${configDb.reddit.subredditDescription}
+    - wykop: Tytuł: ${configDb.wykop.titleDescription} | Treść: ${configDb.wykop.contentDescription}
+    - discord: Tytuł: ${configDb.discord.titleDescription} | Treść: ${configDb.discord.contentDescription}
+    - telegram: Tytuł: ${configDb.telegram.titleDescription} | Treść: ${configDb.telegram.contentDescription}
+
+    Musisz ściśle trzymać się następującej struktury JSON:
+    {
+      "categories": ["kategoria1", "kategoria2"],
+      "x": { "title": "...", "content": "..." },
+      "facebook": { "title": "...", "content": "..." },
+      "linkedin": { "title": "...", "content": "..." },
+      "reddit": { "title": "...", "content": "...", "subreddit": ["sub1", "sub2"] },
+      "wykop": { "title": "...", "content": "..." },
+      "discord": { "title": "...", "content": "..." },
+      "telegram": { "title": "...", "content": "..." }
+    }
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            x: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.x.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.x.contentDescription,
-                },
-              },
-              required: ["title", "content"],
-            },
-            facebook: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.facebook.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.facebook.contentDescription,
-                },
-              },
-              required: ["title", "content"],
-            },
-            linkedin: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.linkedin.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.linkedin.contentDescription,
-                },
-              },
-              required: ["title", "content"],
-            },
-            reddit: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.reddit.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.reddit.contentDescription,
-                },
-                subreddit: {
-                  type: Type.ARRAY,
-                  items: { type: Type.STRING },
-                  description: configDb.reddit.subredditDescription,
-                },
-              },
-              required: ["title", "content", "subreddit"],
-            },
-            wykop: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.wykop.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.wykop.contentDescription,
-                },
-              },
-              required: ["title", "content"],
-            },
-            discord: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.discord.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.discord.contentDescription,
-                },
-              },
-              required: ["title", "content"],
-            },
-            telegram: {
-              type: Type.OBJECT,
-              properties: {
-                title: {
-                  type: Type.STRING,
-                  description: configDb.telegram.titleDescription,
-                },
-                content: {
-                  type: Type.STRING,
-                  description: configDb.telegram.contentDescription,
-                },
-              },
-              required: ["title", "content"],
-            },
-            categories: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description:
-                "Tablica 1-3 kategorii przypisanych do artykułu z dozwolonej puli",
-            },
-          },
-          required: [
-            "x",
-            "facebook",
-            "linkedin",
-            "reddit",
-            "wykop",
-            "discord",
-            "telegram",
-            "categories",
-          ],
+    const response = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "user",
+          content: prompt,
         },
-      },
+      ],
+      model: "llama-3.1-8b-instant",
+      response_format: { type: "json_object" },
     });
 
-    if (response.text) {
-      const rawData: GeneratingInterface = JSON.parse(response.text);
+    const responseText = response.choices[0]?.message?.content;
+
+    if (responseText) {
+      const rawData: IGeminiRawOutput = JSON.parse(responseText);
 
       const mapToSocialPost = (platformData: {
         title: string;
         content: string;
       }): ISocialPost => ({
-        title: platformData.title,
-        content: platformData.content,
+        title: platformData.title || "",
+        content: platformData.content || "",
         uploaded: false,
         additional_photo: null,
       });
 
-      // DODANE: Pola wymagane przez DataFromLink (wchodzące w skład GeneratingInterface)
       const finalOutput: GeneratingInterface = {
         title,
         description,
         link,
         imageUrl,
-        categories: rawData.categories,
+        categories: rawData.categories || [],
         x: mapToSocialPost(rawData.x),
         facebook: mapToSocialPost(rawData.facebook),
         linkedin: mapToSocialPost(rawData.linkedin),
         reddit: {
           ...mapToSocialPost(rawData.reddit),
-          subreddit: rawData.reddit.subreddit,
+          subreddit: rawData.reddit?.subreddit || [],
         },
         wykop: mapToSocialPost(rawData.wykop),
         discord: mapToSocialPost(rawData.discord),
@@ -203,9 +111,9 @@ export async function generateSocialContent(
       return finalOutput;
     }
 
-    throw new Error("Model returned empty response");
+    throw new Error("Model z Groq zwrócił pustą odpowiedź");
   } catch (error) {
-    console.error("Błąd podczas generowania treści przez Gemini:", error);
+    console.error("Błąd podczas generowania treści przez Groq:", error);
     throw error;
   }
 }
