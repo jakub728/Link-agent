@@ -1,8 +1,4 @@
-import express, {
-  type Request,
-  type Response,
-  type NextFunction,
-} from "express";
+import express, { type Response, type NextFunction } from "express";
 import axios from "axios";
 import { chromium } from "playwright";
 import { type DataFromLink } from "../types/generatedInterface";
@@ -15,7 +11,7 @@ import { checkToken } from "../middleware/checkToken";
 const router = express.Router();
 
 //Historia wpisów
-//http:localhost:5000/link/history
+//http:localhost:5000/generate/history
 router.post(
   "/content",
   checkToken,
@@ -34,10 +30,11 @@ router.post(
 );
 
 //Pobieranie danych z linku
-//http:localhost:5000/link/data-from
+//http:localhost:5000/generate/data-from
 router.post(
   "/data-from",
-  async (req: Request, res: Response, next: NextFunction) => {
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       let browser;
       const { url } = req.body;
@@ -97,7 +94,7 @@ router.post(
 );
 
 //Generowanie treści na wszystkie sociale na raz
-//http:localhost:5000/link/content
+//http:localhost:5000/generate/content
 router.post(
   "/content",
   checkToken,

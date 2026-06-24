@@ -7,18 +7,56 @@ import bcryptjs from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { checkAdmin, checkToken } from "../middleware/checkToken";
+import { type AuthenticatedRequest } from "../types/userInterface";
 import User from "../model/user";
 import AIConfig from "../model/prompt";
 
 dotenv.config();
 const router = express.Router();
 
+//CHECK USER
+//http://localhost:5000/user/me
+router.get(
+  "/me",
+  checkToken,
+  checkAdmin,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        return res
+          .status(401)
+          .json({ message: "Brak autoryzacji. Token jest nieprawidłowy." });
+      }
+
+      const user = await User.findById(userId)
+        .populate("prompts")
+        .select("-password");
+
+      if (!user) {
+        return res.status(404).json({ message: "Użytkownik nie istnieje." });
+      }
+
+      return res.status(200).json({
+        user: {
+          id: user._id,
+          login: user.login,
+          prompts: user.prompts,
+          role: user.role,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      next(error as any);
+    }
+  },
+);
+
 //LOGIN USER
 //http://localhost:5000/user/login
 router.post(
   "/login",
-  checkToken,
-  checkAdmin,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { login, password } = req.body;
@@ -73,13 +111,18 @@ router.post(
   },
 );
 
-
 //LOGOUT USER
 //http://localhost:5000/user/logout
 router.post(
   "/logout",
-  async (req: Request, res: Response, next: NextFunction) => {
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
+      res.clearCookie("auth_token", {
+        httpOnly: true,
+        sameSite: "lax",
+      });
+      return res.status(200).json({ message: "Wylogowano pomyślnie" });
     } catch (error) {
       console.error(error);
       next(error as any);
@@ -91,7 +134,9 @@ router.post(
 //http://localhost:5000/user/admin-create-user
 router.post(
   "/admin-create-user",
-  async (req: Request, res: Response, next: NextFunction) => {
+  checkToken,
+  checkAdmin,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const { login, password, role } = req.body;
 

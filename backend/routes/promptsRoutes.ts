@@ -10,7 +10,7 @@ import { checkToken } from "../middleware/checkToken";
 const router = express.Router();
 
 //?GET PROMPTY
-// http://localhost:5000/link/get-prompt
+// http://localhost:5000/prompt/get-prompt
 router.get(
   "/get-prompt",
   checkToken,
@@ -28,8 +28,8 @@ router.get(
 );
 
 //?POST PROMPTY
-// http://localhost:5000/link/edit-prompt
-router.post(
+// http://localhost:5000/prompt/edit-prompt
+router.put(
   "/edit-prompt",
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
