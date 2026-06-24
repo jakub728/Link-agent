@@ -29,6 +29,7 @@ const generatingSchema = new Schema<GeneratingInterface>(
     imageUrl: { type: String, default: null },
     link: { type: String, required: true, unique: true },
     categories: [{ type: String }],
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
 
     x: { type: SocialPostSchema, required: true },
     facebook: { type: SocialPostSchema, required: true },

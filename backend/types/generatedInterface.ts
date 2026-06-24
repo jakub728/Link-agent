@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export interface DataFromLink {
   title: string;
   description: string | null;
@@ -8,7 +10,6 @@ export interface DataFromLink {
 export interface ISocialPost {
   title: string;
   content: string;
-  uploaded: boolean;
   additional_photo: string | null;
 }
 
@@ -17,6 +18,7 @@ export interface IRedditPost extends ISocialPost {
 }
 
 export interface GeneratingInterface extends DataFromLink {
+  author: Types.ObjectId | string;
   categories: string[];
   x: ISocialPost;
   facebook: ISocialPost;

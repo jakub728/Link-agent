@@ -6,16 +6,37 @@ import express, {
 import axios from "axios";
 import { chromium } from "playwright";
 import { type DataFromLink } from "../types/generatedInterface";
+import { type AuthenticatedRequest } from "../types/userInterface";
 import GeneratedData from "../model/generated";
 import { convertAndSaveImage } from "../utils/imageConverter";
 import { generateSocialContent } from "../utils/aiService";
+import { checkToken } from "../middleware/checkToken";
 
 const router = express.Router();
+
+//Historia wpisów
+//http:localhost:5000/link/history
+router.post(
+  "/content",
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const userHistory = await GeneratedData.find({
+        author: req.user?.userId,
+      });
+
+      return res.status(200).json(userHistory);
+    } catch (error) {
+      console.error("Błąd pobierania historii generowania:", error);
+      next(error);
+    }
+  },
+);
 
 //Pobieranie danych z linku
 //http:localhost:5000/link/data-from
 router.post(
-  "/data-from-link",
+  "/data-from",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       let browser;
@@ -76,9 +97,11 @@ router.post(
 );
 
 //Generowanie treści na wszystkie sociale na raz
+//http:localhost:5000/link/content
 router.post(
   "/content",
-  async (req: Request, res: Response, next: NextFunction) => {
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const { title, description, link, imageUrl } = req.body;
 
@@ -121,6 +144,7 @@ router.post(
         link,
         imageUrl: localJpgUrl,
         categories: aiContent.categories,
+        author: req.user?.userId,
         x: aiContent.x,
         facebook: aiContent.facebook,
         linkedin: aiContent.linkedin,

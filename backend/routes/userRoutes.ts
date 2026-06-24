@@ -9,7 +9,6 @@ import jwt from "jsonwebtoken";
 import { checkAdmin, checkToken } from "../middleware/checkToken";
 import User from "../model/user";
 import AIConfig from "../model/prompt";
-import { requireAuth } from "../middleware/auth";
 
 dotenv.config();
 const router = express.Router();
@@ -73,6 +72,7 @@ router.post(
     }
   },
 );
+
 
 //LOGOUT USER
 //http://localhost:5000/user/logout
