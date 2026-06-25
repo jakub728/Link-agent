@@ -1,7 +1,6 @@
 export interface IAllPromptConfig {
   titleDescription: string;
   contentDescription: string;
-  subredditDescription?: string;
 }
 export interface IRedditPromptConfig {
   titleDescription: string;

@@ -13,7 +13,7 @@ const router = express.Router();
 //Historia wpisów
 //http:localhost:5000/generate/history
 router.post(
-  "/content",
+  "/history",
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
@@ -100,13 +100,16 @@ router.post(
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const { title, description, link, imageUrl } = req.body;
+      const { title, description, link, imageUrl, overwrite } = req.body;
 
       console.log(`[Generator] Rozpoczynam proces dla artykułu: ${title}\n`);
       const existinGeneration = await GeneratedData.findOne({ title: title });
-      if (existinGeneration) {
+      if (existinGeneration && !overwrite) {
         console.log("[Generator] Treści już istnieją\n");
         return res.status(201).json(existinGeneration);
+      }
+      if (existinGeneration && overwrite) {
+        console.log("[Generator] Nadpisywanie istniejących treści\n");
       }
 
       let localJpgUrl: string | null = null;

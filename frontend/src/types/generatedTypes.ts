@@ -5,6 +5,20 @@ export interface ScrapedLinkData {
   description: string | null;
 }
 
+export interface GeneratedPostAll {
+  title: string;
+  content: string;
+  uploaded: boolean;
+  additional_photo: string | null;
+}
+export interface GeneratedPostReddit {
+  title: string;
+  content: string;
+  subreddit: string;
+  uploaded: boolean;
+  additional_photo: string | null;
+}
+
 export interface GeneratedPost {
   _id: string;
   title: string;
@@ -13,12 +27,21 @@ export interface GeneratedPost {
   imageUrl?: string | null;
   categories: string[];
   author: string;
-  x: any; // Możesz zastąpić swoim IAllPromptConfig
-  facebook: any;
-  linkedin: any;
-  reddit: any;
-  wykop: any;
-  discord: any;
-  telegram: any;
+  x: GeneratedPostAll;
+  facebook: GeneratedPostAll;
+  linkedin: GeneratedPostAll;
+  reddit: GeneratedPostReddit;
+  wykop: GeneratedPostAll;
+  discord: GeneratedPostAll;
+  telegram: GeneratedPostAll;
   createdAt: string;
 }
+
+export type PlatformType =
+  | "facebook"
+  | "x"
+  | "linkedin"
+  | "reddit"
+  | "wykop"
+  | "discord"
+  | "telegram";

@@ -38,7 +38,7 @@ export const useScrapeLink = () => {
 export const useGenerateContent = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<GeneratedPost, any, Partial<ScrapedLinkData>>({
+  return useMutation<GeneratedPost, any, Partial<ScrapedLinkData> & { overwrite?: boolean }>({
     mutationFn: async (postData) => {
       const response = await api.post("/generate/content", postData);
       return response.data;

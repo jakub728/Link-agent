@@ -5,10 +5,10 @@ import express, {
 } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
 import cookieParser from "cookie-parser";
 import { ZodError } from "zod";
 import { connectDB } from "./utils/connectDB";
+import publicRouter from "./routes/publicRoutes";
 import generateRouter from "./routes/generateRoutes";
 import userRouter from "./routes/userRoutes";
 import promptRouter from "./routes/promptsRoutes";
@@ -36,10 +36,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 //! ROUTY
+app.use("/public", publicRouter);
 app.use("/user", userRouter);
 app.use("/prompt", promptRouter);
 app.use("/generate", generateRouter);
-app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 //! GLOBAL ERROR HANDLER
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
