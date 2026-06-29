@@ -22,7 +22,7 @@ const RedditPostSchema = new Schema(
   { _id: false },
 );
 
-const generatingSchema = new Schema<GeneratingInterface>(
+const GeneratingSchema = new Schema<GeneratingInterface>(
   {
     title: { type: String, required: true },
     description: { type: String, default: null },
@@ -44,6 +44,6 @@ const generatingSchema = new Schema<GeneratingInterface>(
   },
 );
 
-const Draft = model<GeneratingInterface>("GeneratedData", generatingSchema);
+const Draft = model<GeneratingInterface>("GeneratedData", GeneratingSchema);
 
 export default Draft;

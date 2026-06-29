@@ -12,6 +12,7 @@ import publicRouter from "./routes/publicRoutes";
 import generateRouter from "./routes/generateRoutes";
 import userRouter from "./routes/userRoutes";
 import promptRouter from "./routes/promptsRoutes";
+import connectAccountsRouter from "./routes/accountsRoutes";
 
 dotenv.config();
 const app = express();
@@ -40,6 +41,7 @@ app.use("/public", publicRouter);
 app.use("/user", userRouter);
 app.use("/prompt", promptRouter);
 app.use("/generate", generateRouter);
+app.use("/connect/account", connectAccountsRouter);
 
 //! GLOBAL ERROR HANDLER
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

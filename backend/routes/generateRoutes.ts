@@ -12,7 +12,7 @@ const router = express.Router();
 
 //Historia wpisów
 //http:localhost:5000/generate/history
-router.post(
+router.get(
   "/history",
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
