@@ -355,7 +355,19 @@ router.get(
           break;
         }
 
+        // FACEBOOK
         case "facebook":
+          console.log("DEBUG: Wymiana kodu na token");
+          console.log(
+            "URL Facebooka:",
+            "https://graph.facebook.com/v13.0/oauth/access_token",
+          );
+          console.log("CLIENT_ID:", process.env.FACEBOOK_CLIENT_ID);
+          console.log(
+            "CLIENT_SECRET:",
+            process.env.FACEBOOK_CLIENT_SECRET ? "JEST OK" : "PUSTE!",
+          );
+          console.log("CODE:", code);
           const tokenResponse = await fetch(
             `https://graph.facebook.com/v17.0/oauth/access_token?` +
               new URLSearchParams({
