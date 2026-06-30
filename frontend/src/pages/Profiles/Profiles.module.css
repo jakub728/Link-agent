@@ -1,6 +1,13 @@
 .container {
   position: relative;
 }
+.container h2 {
+  display: flex;
+  justify-content: left;
+  margin-left: 20px;
+  gap: 5px;
+  align-items: center;
+}
 
 .profile {
   width: 50%;
@@ -11,6 +18,7 @@
   justify-content: space-between;
   align-items: center;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 .profile img {
   width: 64px;
@@ -28,5 +36,5 @@
   right: 20px;
   top: 0;
   background-color: var(--accent);
-  color: var(--text-h);
+  color: white;
 }
