@@ -6,6 +6,10 @@ import api from "../services/api";
 export const useUserData = () => {
   const { data: userData } = useQuery<UserData>({
     queryKey: ["authUser"],
+    queryFn: async () => {
+      const response = await api.get("/user/me");
+      return response.data;
+    },
   });
 
   return {

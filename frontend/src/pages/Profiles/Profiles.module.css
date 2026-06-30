@@ -1,0 +1,32 @@
+.container {
+  position: relative;
+}
+
+.profile {
+  width: 50%;
+  margin: auto;
+  background-color: var(--accent-bg);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+}
+.profile img {
+  width: 64px;
+  height: 64px;
+}
+.profile button {
+  background-color: red;
+}
+.profile button:hover {
+  background-color: darkred;
+}
+
+.addButton {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  background-color: var(--accent);
+  color: var(--text-h);
+}

@@ -6,6 +6,7 @@ const ConnectedAccoutSchema = new Schema<ConnectedAccoutInterface>({
   platform: { type: String, required: true },
   profileId: { type: String },
   profileName: { type: String, required: true },
+  picture: { type: String },
   credentials: {
     accessToken: { type: String },
     refreshToken: { type: String },

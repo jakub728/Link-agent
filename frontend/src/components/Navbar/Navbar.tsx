@@ -17,6 +17,9 @@ export default function Navbar() {
       <NavLink className={styles.navlink} to="/history">
         Historia
       </NavLink>
+      <NavLink className={styles.navlink} to="/accounts">
+        Konta
+      </NavLink>
       {role === "admin" && (
         <NavLink className={styles.navlink} to="/admin">
           Admin

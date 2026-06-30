@@ -6,8 +6,55 @@ import express, {
 import { type AuthenticatedRequest } from "../types/userInterface";
 import { checkToken } from "../middleware/checkToken";
 import Account from "../model/conectedAccouts";
+import { type ConnectedAccoutInterface } from "../types/conectedInterface";
 
 const router = express.Router();
+
+//Get all accounts
+//http://localhost:5000/connect/account/all
+router.get(
+  "/all",
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?.userId;
+      const allAccounts = await Account.find({ userId: userId }).lean();
+
+      const groupedAccounts = {
+        facebook: [] as ConnectedAccoutInterface[],
+        linkedin: [] as ConnectedAccoutInterface[],
+        reddit: [] as ConnectedAccoutInterface[],
+        wykop: [] as ConnectedAccoutInterface[],
+        telegram: [] as ConnectedAccoutInterface[],
+        discord: [] as ConnectedAccoutInterface[],
+      };
+
+      if (allAccounts && allAccounts.length > 0) {
+        allAccounts.forEach((account) => {
+          const platform = account.platform?.toLowerCase();
+
+          if (platform === "facebook") {
+            groupedAccounts.facebook.push(account);
+          } else if (platform === "linkedin") {
+            groupedAccounts.linkedin.push(account);
+          } else if (platform === "reddit") {
+            groupedAccounts.reddit.push(account);
+          } else if (platform === "wykop") {
+            groupedAccounts.wykop.push(account);
+          } else if (platform === "discord") {
+            groupedAccounts.discord.push(account);
+          } else if (platform === "telegram") {
+            groupedAccounts.telegram.push(account);
+          }
+        });
+      }
+      return res.status(200).json({ groupedAccounts });
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+);
 
 //Endpoint Discord, Telegram
 //http://localhost:5000/connect/account/manual
@@ -110,16 +157,13 @@ router.get(
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const { platform, code } = req.query;
+      const { platform } = req.query;
       const userId = req.user?.userId;
 
       if (!platform) {
         return res.status(400).json("Brak parametru platform");
       }
 
-      if (!code) {
-        return res.status(400).json("Brak kodu autoryzacyjnego w zapytaniu");
-      }
       let authUrl = "";
 
       const baseCallbackUrl = "http://localhost:5000/connect/account/callback";
@@ -147,84 +191,22 @@ router.get(
           break;
 
         case "facebook": {
-          const tokenResponse = await fetch(
-            `https://graph.facebook.com/v19.0/oauth/access_token?` +
-              `client_id=${process.env.FACEBOOK_APP_ID}` +
-              `&redirect_uri=${encodeURIComponent(baseCallbackUrl)}` +
-              `&client_secret=${process.env.FACEBOOK_APP_SECRET}` +
-              `&code=${code}`,
-          );
-          const tokenData = await tokenResponse.json();
+          // const clientId = process.env.FACEBOOK_APP_ID;
+          const clientId = "2436975563471600";
+          const redirectUri = `${process.env.BACKEND_URL}/connect/account/callback/facebook`;
 
-          if (!tokenData.access_token) {
-            return res
-              .status(400)
-              .json("Nie udało się uzyskać tokenu Facebooka");
-          }
+          const scopes = ["public_profile"].join(",");
 
-          const userToken = tokenData.access_token;
-
-          // 2. REJESTRACJA PROFILU PRYWATNEGO
-          const profileResponse = await fetch(
-            `https://graph.facebook.com/v19.0/me?fields=id,name&access_token=${userToken}`,
-          );
-          const profileData = await profileResponse.json();
-
-          if (profileData.id) {
-            const existingUserAcc = await Account.findOne({
-              userId,
-              platform,
-              profileId: profileData.id,
+          const authUrl =
+            `https://www.facebook.com/v19.0/dialog/oauth?` +
+            new URLSearchParams({
+              client_id: clientId || "",
+              redirect_uri: redirectUri,
+              scope: scopes,
+              response_type: "code",
             });
-            if (existingUserAcc) {
-              existingUserAcc.credentials = { accessToken: userToken };
-              await existingUserAcc.save();
-            } else {
-              await Account.create({
-                userId,
-                platform,
-                profileId: profileData.id,
-                profileName: `${profileData.name} (Profil)`,
-                credentials: { accessToken: userToken },
-              });
-            }
-          }
 
-          // 3. REJESTRACJA STRON (FANPAGE'Y)
-          const accountsResponse = await fetch(
-            `https://graph.facebook.com/v19.0/me/accounts?access_token=${userToken}`,
-          );
-          const accountsData = await accountsResponse.json();
-
-          // Jeśli użytkownik zarządza jakimiś stronami, lecimy pętlą i dodajemy każdą z osobna
-          if (accountsData.data && accountsData.data.length > 0) {
-            for (const page of accountsData.data) {
-              const pageId = page.id;
-              const pageName = page.name;
-              const pageToken = page.access_token; // Dedykowany token strony
-
-              const existingPageAcc = await Account.findOne({
-                userId,
-                platform,
-                profileId: pageId,
-              });
-
-              if (existingPageAcc) {
-                existingPageAcc.credentials = { accessToken: pageToken };
-                await existingPageAcc.save();
-              } else {
-                await Account.create({
-                  userId,
-                  platform,
-                  profileId: pageId,
-                  profileName: `${pageName} (Strona)`,
-                  credentials: { accessToken: pageToken },
-                });
-              }
-            }
-          }
-
-          break;
+          return res.json({ url: authUrl });
         }
 
         case "wykop":
@@ -249,7 +231,7 @@ router.get(
 //Endpoint Facebook, Reddit, Wykop, LinkedIn
 //http://localhost:5000/connect/account/callback/:platform
 router.get(
-  "/auth-url",
+  "/callback/:platform",
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
@@ -260,12 +242,13 @@ router.get(
         return res.status(400).json("Brak autoryzacyjnego kodu (code) w query");
       }
 
-      const baseCallbackUrl = `http://localhost:5000/connect/account/callback/${platform}`;
+      const baseCallbackUrl = `${process.env.BACKEND_URL}/connect/account/callback/${platform}`;
       let accessToken = "";
       let refreshToken = "";
       let expiresAt: Date | undefined = undefined;
       let profileId = "";
       let profileName = "";
+      let picture = "";
 
       const userId = req.user?.userId;
 
@@ -276,7 +259,7 @@ router.get(
             "https://www.linkedin.com/oauth/v2/accessToken",
             {
               method: "POST",
-              headers: { "Content-Type": "x-www-form-urlencoded" },
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
               body: new URLSearchParams({
                 grant_type: "authorization_code",
                 code: code as string,
@@ -286,23 +269,50 @@ router.get(
               }),
             },
           );
+
           const tokenData = await tokenResponse.json();
+
+          if (!tokenData.id_token) {
+            return res.status(400).json({
+              message:
+                "Brak id_token w odpowiedzi LinkedIn. Sprawdź czy masz włączony produkt 'Sign In with LinkedIn using OpenID Connect' w panelu dewelopera.",
+              debug: tokenData,
+            });
+          }
+
           accessToken = tokenData.access_token;
-          refreshToken = tokenData.refresh_token; // Dostępny tylko przy odpowiednich uprawnieniach aplikacji
+          refreshToken = tokenData.refresh_token;
           if (tokenData.expires_in) {
             expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
           }
 
-          // 2. Pobranie danych profilu (ID i Imię/Nazwisko)
-          const profileResponse = await fetch(
-            "https://api.linkedin.com/v2/userinfo",
-            {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            },
-          );
-          const profileData = await profileResponse.json();
-          profileId = profileData.sub; // unikalne ID użytkownika LinkedIn
-          profileName = `${profileData.given_name} ${profileData.family_name}`;
+          try {
+            const base64Payload = tokenData.id_token.split(".")[1];
+            const decodedPayload = JSON.parse(
+              Buffer.from(base64Payload, "base64").toString("utf-8"),
+            );
+
+            console.log("=== ZDEKODOWANY ID TOKEN PAYLOAD ===", decodedPayload);
+
+            profileId = decodedPayload.sub;
+            picture = decodedPayload.picture;
+            if (decodedPayload.name) {
+              profileName = decodedPayload.name;
+            } else {
+              profileName =
+                `${decodedPayload.given_name || ""} ${decodedPayload.family_name || ""}`.trim();
+            }
+
+            if (!profileName) {
+              profileName = `Konto LinkedIn (${profileId})`;
+            }
+          } catch (jwtError) {
+            console.error("Błąd dekodowania JWT:", jwtError);
+            return res
+              .status(500)
+              .json("Nie udało się sparsować danych profilu z ID Tokena.");
+          }
+
           break;
         }
 
@@ -347,11 +357,95 @@ router.get(
         }
 
         case "facebook":
-          // Logikę dla Facebooka i Wykopu dodamy analogicznie, jak poustawiasz ich panele dev
-          return res
-            .status(501)
-            .json("Logika dla Facebooka w trakcie implementacji");
+          const tokenResponse = await fetch(
+            `https://graph.facebook.com/v17.0/oauth/access_token?` +
+              new URLSearchParams({
+                client_id: process.env.FACEBOOK_APP_ID || "",
+                client_secret: process.env.FACEBOOK_APP_SECRET || "",
+                redirect_uri: baseCallbackUrl,
+                code: code as string,
+              }),
+          );
 
+          const tokenData = await tokenResponse.json();
+
+          if (tokenData.error) {
+            return res.status(400).json({
+              message: "Błąd pobierania tokenu użytkownika z Facebooka",
+              debug: tokenData.error,
+            });
+          }
+          const shortLivedUserToken = tokenData.access_token;
+
+          const longLivedUserResponse = await fetch(
+            `https://graph.facebook.com/v17.0/oauth/access_token?` +
+              new URLSearchParams({
+                grant_type: "fb_exchange_token",
+                client_id: process.env.FACEBOOK_APP_ID || "",
+                client_secret: process.env.FACEBOOK_APP_SECRET || "",
+                fb_exchange_token: shortLivedUserToken,
+              }),
+          );
+
+          const longLivedUserData = await longLivedUserResponse.json();
+
+          if (longLivedUserData.error) {
+            return res.status(400).json({
+              message: "Błąd generowania długoterminowego tokenu użytkownika",
+              debug: longLivedUserData.error,
+            });
+          }
+
+          const longLivedUserToken = longLivedUserData.access_token;
+
+          const accountsResponse = await fetch(
+            `https://graph.facebook.com/v17.0/me/accounts?` +
+              new URLSearchParams({
+                access_token: longLivedUserToken,
+                fields: "id,name,access_token,picture",
+              }),
+          );
+
+          const accountsData = await accountsResponse.json();
+
+          if (accountsData.error) {
+            return res.status(400).json({
+              message: "Błąd pobierania stron użytkownika",
+              debug: accountsData.error,
+            });
+          }
+
+          if (!accountsData.data || accountsData.data.length === 0) {
+            return res.status(400).json({
+              message:
+                "Nie znaleziono żadnych stron (Fanpage) powiązanych z tym kontem. Upewnij się, że zaznaczyłeś je w oknie logowania Facebooka.",
+            });
+          }
+
+          for (const page of accountsData.data) {
+            const pageAccessToken = page.access_token;
+            const pageProfileId = page.id;
+            const pageProfileName = page.name;
+            const pagePicture = page.picture?.data?.url || "";
+
+            await Account.findOneAndUpdate(
+              { userId, profileId: pageProfileId, platform: "facebook" },
+              {
+                userId,
+                platform: "facebook",
+                profileId: pageProfileId,
+                profileName: pageProfileName,
+                picture: pagePicture,
+                credentials: {
+                  accessToken: pageAccessToken,
+                  refreshToken: "",
+                  expiresAt: undefined,
+                },
+              },
+              { upsert: true, new: true },
+            );
+          }
+          return res.redirect("http://localhost:5173/accounts?connect=success");
         case "wykop":
           return res
             .status(501)
@@ -376,13 +470,12 @@ router.get(
           platform,
           profileId,
           profileName,
+          picture,
           credentials: { accessToken, refreshToken, expiresAt },
         });
       }
 
-      return res.redirect(
-        "http://localhost:5173/home/settings?connect=success",
-      );
+      return res.redirect("http://localhost:5173/accounts?connect=success");
     } catch (error) {
       console.error(error);
       next(error);

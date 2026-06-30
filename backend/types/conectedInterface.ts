@@ -5,6 +5,7 @@ export interface ConnectedAccoutInterface {
   platform: string;
   profileId: string;
   profileName: string;
+  picture: string;
   credentials: {
     accessToken?: string;
     refreshToken?: string;

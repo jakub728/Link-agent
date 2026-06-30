@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound/NotFound";
 import Home from "./pages/Home/Home";
 import Generate from "./pages/Generate/Generate";
 import History from "./pages/History/History";
+import Profiles from "./pages/Profiles/Profiles";
 import AdminPanel from "./pages/Admin/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
@@ -21,6 +22,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/generate" element={<Generate />} />
             <Route path="/history" element={<History />} />
+            <Route path="/accounts" element={<Profiles />} />
             <Route path="/admin" element={<AdminPanel />} />
           </Route>
         </Route>

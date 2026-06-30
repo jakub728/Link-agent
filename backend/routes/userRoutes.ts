@@ -39,12 +39,10 @@ router.get(
       }
 
       return res.status(200).json({
-        user: {
-          id: user._id,
-          login: user.login,
-          prompts: user.prompts,
-          role: user.role,
-        },
+        id: user._id,
+        login: user.login,
+        prompts: user.prompts,
+        role: user.role,
       });
     } catch (error) {
       console.error(error);
