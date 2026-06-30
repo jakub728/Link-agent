@@ -191,10 +191,15 @@ router.get(
           break;
 
         case "facebook": {
-          const clientId = "2436975563471600";
+          const clientId = process.env.FACEBOOK_CLIENT_ID;
           const redirectUri = `${baseCallbackUrl}/facebook`;
 
-          const scopes = ["public_profile"].join(",");
+          const scopes = [
+            "public_profile",
+            "pages_show_list",
+            "pages_manage_posts",
+            "pages_read_engagement",
+          ].join(",");
 
           const authUrl =
             `https://www.facebook.com/v19.0/dialog/oauth?` +
@@ -203,6 +208,7 @@ router.get(
               redirect_uri: redirectUri,
               scope: scopes,
               response_type: "code",
+              auth_type: "rerequest",
             });
 
           return res.json({ url: authUrl });
@@ -414,6 +420,14 @@ router.get(
 
           const accountsData = await accountsResponse.json();
 
+          console.log(
+            "📊 Pełna odpowiedź /me/accounts:",
+            JSON.stringify(accountsData, null, 2),
+          );
+          console.log("🔍 accountsData.data:", accountsData.data);
+          console.log("🔍 Czy data istnieje?", !!accountsData.data);
+          console.log("🔍 Czy data.length > 0?", accountsData.data?.length);
+
           if (accountsData.error) {
             return res.status(400).json({
               message: "Błąd pobierania stron użytkownika",
@@ -422,6 +436,7 @@ router.get(
           }
 
           if (!accountsData.data || accountsData.data.length === 0) {
+            console.warn("⚠️ Brak danych lub pusta tablica:", accountsData);
             return res.status(400).json({
               message:
                 "Nie znaleziono żadnych stron (Fanpage) powiązanych z tym kontem. Upewnij się, że zaznaczyłeś je w oknie logowania Facebooka.",
