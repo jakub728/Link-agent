@@ -15,7 +15,7 @@ dotenv.config();
 const router = express.Router();
 
 //CHECK USER
-//http://localhost:5000/user/me
+//https://ai.sulisz.pl/user/me
 router.get(
   "/me",
   checkToken,
@@ -52,7 +52,7 @@ router.get(
 );
 
 //LOGIN USER
-//http://localhost:5000/user/login
+//https://ai.sulisz.pl/user/login
 router.post(
   "/login",
   async (req: Request, res: Response, next: NextFunction) => {
@@ -60,18 +60,18 @@ router.post(
       const { login, password } = req.body;
 
       if (!login || !password) {
-        return res.status(400).json({ message: "Login i hasło są wymagane" });
+        return res.status(400).json({ message: "Niepoprawny login lub hasło" });
       }
 
       const user = await User.findOne({ login }).populate("prompts");
 
       if (!user) {
-        return res.status(401).json({ message: "Login i hasło są wymagane" });
+        return res.status(401).json({ message: "Niepoprawny login lub hasło" });
       }
       const isPasswordCorrect = await bcryptjs.compare(password, user.password);
 
       if (!isPasswordCorrect) {
-        return res.status(401).json({ message: "Login i hasło są wymagane" });
+        return res.status(401).json({ message: "Niepoprawny login lub hasło" });
       }
 
       const tokenPayload = {
@@ -90,7 +90,8 @@ router.post(
 
       res.cookie("auth_token", token, {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        domain: ".sulisz.pl",
         maxAge: 24 * 60 * 60 * 1000,
       });
 
@@ -110,7 +111,7 @@ router.post(
 );
 
 //LOGOUT USER
-//http://localhost:5000/user/logout
+//https://ai.sulisz.pl/user/logout
 router.post(
   "/logout",
   checkToken,
@@ -129,7 +130,7 @@ router.post(
 );
 
 //Admin create user + LOGIN_SECRET
-//http://localhost:5000/user/admin-create-user
+//https://ai.sulisz.pl/user/admin-create-user
 router.post(
   "/admin-create-user",
   checkToken,

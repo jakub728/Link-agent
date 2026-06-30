@@ -166,7 +166,7 @@ router.get(
 
       let authUrl = "";
 
-      const baseCallbackUrl = "http://localhost:5000/connect/account/callback";
+      const baseCallbackUrl = `${process.env.BACKEND_URL}/connect/account/callback`;
 
       switch (platform) {
         case "linkedin":
@@ -191,9 +191,8 @@ router.get(
           break;
 
         case "facebook": {
-          // const clientId = process.env.FACEBOOK_APP_ID;
           const clientId = "2436975563471600";
-          const redirectUri = `${process.env.BACKEND_URL}/connect/account/callback/facebook`;
+          const redirectUri = `${baseCallbackUrl}/facebook`;
 
           const scopes = ["public_profile"].join(",");
 
