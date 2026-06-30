@@ -357,25 +357,17 @@ router.get(
 
         // FACEBOOK
         case "facebook":
-          console.log("DEBUG: Wymiana kodu na token");
-          console.log(
-            "URL Facebooka:",
-            "https://graph.facebook.com/v13.0/oauth/access_token",
-          );
-          console.log("CLIENT_ID:", process.env.FACEBOOK_CLIENT_ID);
-          console.log(
-            "CLIENT_SECRET:",
-            process.env.FACEBOOK_CLIENT_SECRET ? "JEST OK" : "PUSTE!",
-          );
-          console.log("CODE:", code);
           const tokenResponse = await fetch(
-            `https://graph.facebook.com/v17.0/oauth/access_token?` +
-              new URLSearchParams({
-                client_id: process.env.FACEBOOK_APP_ID || "",
-                client_secret: process.env.FACEBOOK_APP_SECRET || "",
+            `https://graph.facebook.com/v25.0/oauth/access_token`,
+            {
+              method: "POST",
+              body: new URLSearchParams({
+                client_id: process.env.FACEBOOK_CLIENT_ID || "",
+                client_secret: process.env.FACEBOOK_CLIENT_SECRET || "",
                 redirect_uri: baseCallbackUrl,
                 code: code as string,
               }),
+            },
           );
 
           const tokenData = await tokenResponse.json();
@@ -389,13 +381,16 @@ router.get(
           const shortLivedUserToken = tokenData.access_token;
 
           const longLivedUserResponse = await fetch(
-            `https://graph.facebook.com/v17.0/oauth/access_token?` +
-              new URLSearchParams({
+            `https://graph.facebook.com/v25.0/oauth/access_token`,
+            {
+              method: "POST",
+              body: new URLSearchParams({
                 grant_type: "fb_exchange_token",
-                client_id: process.env.FACEBOOK_APP_ID || "",
-                client_secret: process.env.FACEBOOK_APP_SECRET || "",
+                client_id: process.env.FACEBOOK_CLIENT_ID || "",
+                client_secret: process.env.FACEBOOK_CLIENT_SECRET || "",
                 fb_exchange_token: shortLivedUserToken,
               }),
+            },
           );
 
           const longLivedUserData = await longLivedUserResponse.json();
@@ -410,7 +405,7 @@ router.get(
           const longLivedUserToken = longLivedUserData.access_token;
 
           const accountsResponse = await fetch(
-            `https://graph.facebook.com/v17.0/me/accounts?` +
+            `https://graph.facebook.com/v25.0/me/accounts?` +
               new URLSearchParams({
                 access_token: longLivedUserToken,
                 fields: "id,name,access_token,picture",
