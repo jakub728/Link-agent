@@ -1,0 +1,36 @@
+.buttonTop {
+  color: var(--text);
+  background-color: var(--social-bg);
+  padding: 0.5rem;
+  border-radius: 5px;
+  margin: 1rem 0;
+}
+.buttonTop:hover {
+  color: var(--text-h);
+}
+.modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+
+  background-color: var(--social-bg);
+  padding: 2rem;
+  width: 80%;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+.input {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+}
+.button {
+  color: var(--bg);
+}
+.button:hover {
+  background-color: var(--bg);
+  color: var(--text-h);
+}

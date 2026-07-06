@@ -113,7 +113,7 @@ export default function PostProposal({
           <div className={style.attachmentPreview}>
             {globalImage && (
               <img
-                src={`http://localhost:5000/public${globalImage}`}
+                src={`https://ai.sulisz.pl/public${globalImage}`}
                 alt="Podgląd"
                 className={style.previewImg}
               />

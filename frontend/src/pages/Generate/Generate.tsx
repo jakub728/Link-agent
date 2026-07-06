@@ -59,9 +59,7 @@ export default function Generate() {
 
   return (
     <div className={style.container}>
-      {/* Sekcja przycisku konfiguracji promptów */}
-
-      {/* Sekcja główna Scrapera */}
+        {/* Sekcja główna Scrapera */}
       <div className={style.scraperSection}>
         <input
           value={urlInput}

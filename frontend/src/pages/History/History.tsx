@@ -44,7 +44,7 @@ export default function History() {
           <div key={post._id} className={style.post}>
             <h3>{post.title}</h3>
             <img
-              src={`http://localhost:5000/public${post.imageUrl}`}
+              src={`https://ai.sulisz.pl/public${post.imageUrl}`}
               alt="foto"
             />
             <p>{post.link}</p>
