@@ -11,6 +11,7 @@ export interface ISocialPost {
   title: string;
   content: string;
   additional_photo: string | null;
+  uploaded?: boolean;
 }
 
 export interface IRedditPost extends ISocialPost {

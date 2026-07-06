@@ -132,6 +132,7 @@ router.post(
 
       console.log("[AI] Generowanie treści przez model LLM...\n");
       const aiContent = await generateSocialContent(
+        req.user?.userId || "",
         title,
         description || "",
         link,

@@ -5,12 +5,14 @@ import {
 import AIConfig from "../model/prompt";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
+import { Types } from "mongoose";
 
 dotenv.config();
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 interface IGeminiRawOutput {
+  author: Types.ObjectId | string;
   categories: string[];
   x: { title: string; content: string };
   facebook: { title: string; content: string };
@@ -22,6 +24,7 @@ interface IGeminiRawOutput {
 }
 
 export async function generateSocialContent(
+  author: string | Types.ObjectId,
   title: string,
   description: string | null,
   link: string,
@@ -91,6 +94,7 @@ export async function generateSocialContent(
       });
 
       const finalOutput: GeneratingInterface = {
+        author: author,
         title,
         description,
         link,
