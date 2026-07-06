@@ -7,13 +7,13 @@ export async function convertAndSaveImage(
   imageUrl: string,
 ): Promise<string | null> {
   try {
-    const uploadDir = path.join(__dirname, "../public/uploads");
+    const uploadDir = path.join(process.cwd(), "public/uploads");
 
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
-    const baseNameWithExt = path.basename(imageUrl); 
-    const originalName = path.parse(baseNameWithExt).name; 
+    const baseNameWithExt = path.basename(imageUrl);
+    const originalName = path.parse(baseNameWithExt).name;
 
     const fileName = `${originalName}.jpg`;
     const outputPath = path.join(uploadDir, fileName);
@@ -30,12 +30,13 @@ export async function convertAndSaveImage(
       .jpeg({ quality: 85, progressive: true })
       .toFile(outputPath);
 
-    console.log(
-      `[ImageService] Nowy obrazek zapisany pomyślnie: ${fileName}`,
-    );
+    console.log(`[ImageService] Nowy obrazek zapisany pomyślnie: ${fileName}`);
     return publicPath;
   } catch (error: any) {
-    console.error(`[ImageService] Błąd konwersji/sprawdzania buffera:`, error.message);
+    console.error(
+      `[ImageService] Błąd konwersji/sprawdzania buffera:`,
+      error.message,
+    );
     return null;
   }
 }
