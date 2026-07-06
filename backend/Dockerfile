@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build 
 
+RUN echo "--- ZAWARTOŚĆ FOLDERU DIST ---" && ls -R /app/dist && echo "-------------------------------"
+
 RUN mkdir -p public/uploads && chmod -R 777 public/uploads
 
 EXPOSE 5000
