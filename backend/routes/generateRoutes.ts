@@ -110,6 +110,7 @@ router.post(
       }
       if (existinGeneration && overwrite) {
         console.log("[Generator] Nadpisywanie istniejących treści\n");
+        await GeneratedData.deleteOne({ title: title });
       }
 
       let localJpgUrl: string | null = null;
