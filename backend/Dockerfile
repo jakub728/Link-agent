@@ -5,12 +5,13 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install
-RUN mkdir -p public/uploads && chmod -R 777 public/uploads
 
 COPY . .
 
 RUN npm run build 
 
+RUN mkdir -p public/uploads && chmod -R 777 public/uploads
+
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "open"]

@@ -4,8 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsx watch server.ts",
-    "build": "npx tsc --init"
+    "build": "tsc",
+    "open": "node dist/server.js",
+    "start": "tsx watch server.ts"
   },
   "keywords": [],
   "author": "",
