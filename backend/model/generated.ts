@@ -1,11 +1,21 @@
 import { Schema, model } from "mongoose";
 import { type GeneratingInterface } from "../types/generatedInterface";
 
+const UploadedAccountSchema = new Schema(
+  {
+    id: { type: Schema.Types.ObjectId, ref: "Account", required: true },
+    uploaded: { type: Boolean, default: false },
+  },
+  {
+    _id: false,
+  },
+);
+
 const SocialPostSchema = new Schema(
   {
     title: { type: String, default: "" },
     content: { type: String, required: true },
-    uploaded: { type: Boolean, default: false },
+    uploaded: [UploadedAccountSchema],
     additional_photo: { type: String, default: null },
   },
   { _id: false },
@@ -15,7 +25,7 @@ const RedditPostSchema = new Schema(
   {
     title: { type: String, default: "" },
     content: { type: String, required: true },
-    uploaded: { type: Boolean, default: false },
+    uploaded: [UploadedAccountSchema],
     subreddit: [{ type: String }],
     additional_photo: { type: String, default: null },
   },

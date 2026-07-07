@@ -7,7 +7,6 @@ interface ResultsViewProps {
 }
 
 export default function ResultsView({ data }: ResultsViewProps) {
-  console.log(data.facebook, "Facxebook");
   return (
     <div className={style.resultComponent}>
       <PostProposal

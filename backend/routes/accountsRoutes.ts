@@ -252,9 +252,7 @@ router.get(
       let accessToken = "";
       let refreshToken = "";
       let expiresAt: Date | undefined = undefined;
-      let profileId = "";
-      let profileName = "";
-      let picture = "";
+
 
       const userId = req.user?.userId;
 
@@ -340,7 +338,7 @@ router.get(
             { upsert: true, new: true },
           );
 
-          return res.redirect("http://localhost:5173/accounts?connect=success");
+          return res.redirect("http://localhost:5173/accounts");
         }
 
         //REDDIT
@@ -365,22 +363,43 @@ router.get(
             },
           );
           const tokenData = await tokenResponse.json();
-          accessToken = tokenData.access_token;
-          refreshToken = tokenData.refresh_token; // Reddit zwraca refresh_token tylko przy duration=permanent
+
+          let expiresAt: Date | undefined = undefined;
           if (tokenData.expires_in) {
             expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
           }
 
+          const credentials = {
+            accessToken: tokenData.access_token,
+            refreshToken: tokenData.refresh_token || "",
+            expiresAt,
+          };
+
           const profileResponse = await fetch(
             "https://oauth.reddit.com/api/v1/me",
             {
-              headers: { Authorization: `Bearer ${accessToken}` },
+              headers: { Authorization: `Bearer ${tokenData.access_token}` },
             },
           );
           const profileData = await profileResponse.json();
-          profileId = profileData.id;
-          profileName = `u/${profileData.name}`;
-          break;
+          const profileId = profileData.id;
+          const profileName = `u/${profileData.name}`;
+
+          // Dedykowany zapis w bazie tylko dla Reddit wewnątrz switcha
+          await Account.findOneAndUpdate(
+            { userId, platform: "reddit", profileId },
+            {
+              userId,
+              platform: "reddit",
+              profileId,
+              profileName,
+              picture: "",
+              credentials,
+            },
+            { upsert: true, new: true },
+          );
+
+          return res.redirect("http://localhost:5173/accounts");
         }
 
         // FACEBOOK
@@ -489,28 +508,6 @@ router.get(
         default:
           return res.status(400).json("Nieobsługiwana platforma");
       }
-
-      const existingAccount = await Account.findOne({
-        userId,
-        platform,
-        profileId,
-      });
-
-      if (existingAccount) {
-        existingAccount.credentials = { accessToken, refreshToken, expiresAt };
-        await existingAccount.save();
-      } else {
-        await Account.create({
-          userId,
-          platform,
-          profileId,
-          profileName,
-          picture,
-          credentials: { accessToken, refreshToken, expiresAt },
-        });
-      }
-
-      return res.redirect("http://localhost:5173/accounts?connect=success");
     } catch (error) {
       console.error(error);
       next(error);

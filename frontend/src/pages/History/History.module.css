@@ -1,7 +1,19 @@
 .post {
   padding: 10px;
 }
-
+.postDetails {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.copyIcon {
+  cursor: pointer;
+}
+.copyIcon:hover {
+  color: var(--text-h);
+}
 img {
   max-width: 500px;
 }

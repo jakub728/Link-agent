@@ -27,9 +27,9 @@ export const useScrapeLink = () => {
       return response.data;
     },
     onError: (error: any) => {
-      alert(
-        error.response?.data?.message || "Nie udało się pobrać danych z linku",
-      );
+      // alert(
+      //   error.response?.data?.message || "Nie udało się pobrać danych z linku",
+      // );
     },
   });
 };
@@ -38,7 +38,11 @@ export const useScrapeLink = () => {
 export const useGenerateContent = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<GeneratedPost, any, Partial<ScrapedLinkData> & { overwrite?: boolean }>({
+  return useMutation<
+    GeneratedPost,
+    any,
+    Partial<ScrapedLinkData> & { overwrite?: boolean }
+  >({
     mutationFn: async (postData) => {
       const response = await api.post("/generate/content", postData);
       return response.data;

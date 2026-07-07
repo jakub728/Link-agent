@@ -49,7 +49,7 @@ export const useConnectPlatform = () => {
   });
 };
 
-// 3. HOOK: Usowanie danego social konta    !!!TRZEBA DODAC NA BACKENDZIE!!
+// 3. HOOK: Usuwanie danego social konta    !!!TRZEBA DODAC NA BACKENDZIE!!
 //DELETE /connect/account/delete/:id
 export const useDisconnectAccount = () => {
   const queryClient = useQueryClient();

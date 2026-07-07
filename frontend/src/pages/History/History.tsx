@@ -16,6 +16,7 @@ import ResultsView from "../../components/PostProposal/ResultProposal";
 export default function History() {
   const { data: history, isLoading, isError, error } = useGetHistory();
   const [openView, setOpenView] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   if (isLoading) {
     return <div>Ładowanie historii...</div>;
@@ -47,8 +48,23 @@ export default function History() {
               src={`https://ai.sulisz.pl/public${post.imageUrl}`}
               alt="foto"
             />
-            <p>{post.link}</p>
-            <IoCopyOutline size={24} />
+            <div className={style.postDetails}>
+              <p>{post.link}</p>
+              {copied ? (
+                <span className={style.copiedText}>✓</span>
+              ) : (
+                <IoCopyOutline
+                  size={24}
+                  className={style.copyIcon}
+                  onClick={() => {
+                    navigator.clipboard.writeText(post.link || "");
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 400);
+                  }}
+                />
+              )}
+            </div>
+
             <h3>Opublikuj</h3>
             {!openView && (
               <div className={style.buttons}>

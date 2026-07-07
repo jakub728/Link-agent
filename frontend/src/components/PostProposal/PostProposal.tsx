@@ -9,8 +9,9 @@ import {
 import { IoLogoDiscord } from "react-icons/io5";
 import { type PlatformType } from "../../types/generatedTypes";
 import React from "react";
+import Wykop from "../../assets/wykop.png";
+import { useGetAllAccounts } from "../../hooks/accountHooks";
 
-// WAŻNE: Upewnij się w konsoli, czy Twój backend nie zwraca po prostu "title" i "content"
 interface SocialContent {
   title?: string;
   content: string;
@@ -61,7 +62,9 @@ const PLATFORM_CONFIG: Record<PlatformType, PlatformItemConfig> = {
   wykop: {
     label: "Wykop",
     color: "#FF5812",
-    icon: () => <span style={{ fontSize: "24px", lineHeight: 1 }}>📈</span>,
+    icon: () => (
+      <img src={Wykop} alt="Wykop" style={{ width: "30px", height: "24px" }} />
+    ),
     hasTitle: true,
   },
   discord: {
@@ -87,9 +90,6 @@ export default function PostProposal({
   const config = PLATFORM_CONFIG[platform];
 
   if (!contentData) return null;
-
-  // POPRAWKA: Teraz w konsoli zobaczysz faktyczną nazwę platformy i jej obiekt
-  console.log(`Dane przekazane do [${platform}]:`, contentData);
 
   const IconComponent = config.icon;
 
@@ -117,13 +117,6 @@ export default function PostProposal({
                 alt="Podgląd"
                 className={style.previewImg}
               />
-            )}
-            {globalLink && (
-              <div className={style.linkBox}>
-                <span className={style.linkUrl}>
-                  {new URL(globalLink).hostname}
-                </span>
-              </div>
             )}
           </div>
         )}

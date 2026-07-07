@@ -105,7 +105,7 @@ const AIConfigSchema = new Schema<IAIConfig>(
       },
     },
   },
-  { timestamps: true, collection: "aiconfigs" },
+  { timestamps: true, collection: "prompts" },
 );
 
 export default model<IAIConfig>("AIConfig", AIConfigSchema);

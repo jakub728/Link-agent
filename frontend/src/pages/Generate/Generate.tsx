@@ -6,6 +6,18 @@ import { useScrapeLink, useGenerateContent } from "../../hooks/generateHooks";
 import { useGetPrompts, useEditPrompts } from "../../hooks/promptHooks";
 import ResultsView from "../../components/PostProposal/ResultProposal";
 
+// IKONY
+import Groq from "../../assets/groq-icon.svg";
+import Wykop from "../../assets/Wykop.png";
+import {
+  FaFacebook,
+  FaLinkedin,
+  FaRedditSquare,
+  FaTelegram,
+  FaDiscord,
+} from "react-icons/fa";
+import { FaSquareXTwitter } from "react-icons/fa6";
+
 export default function Generate() {
   const [urlInput, setUrlInput] = useState("");
   const [scrapedData, setScrapedData] = useState<any>(null);
@@ -13,6 +25,7 @@ export default function Generate() {
 
   const [promptState, setPromptState] = useState<Prompt | null>(null);
   const [newCategoryInput, setNewCategoryInput] = useState("");
+  const [showAlert, setShowAlert] = useState("");
 
   const scrapeMutation = useScrapeLink();
   const {
@@ -29,12 +42,24 @@ export default function Generate() {
     }
   }, [promptConfig]);
 
+  // POBIERANIEDANYCH Z LINKU
   const handleScrape = () => {
     scrapeMutation.mutate(urlInput, {
-      onSuccess: (data) => setScrapedData(data),
+      onError: () => {
+        setShowAlert(
+          "Niepoprawny link lub błąd podczas pobierania danych z linku",
+        );
+        setTimeout(() => setShowAlert(""), 5000);
+      },
+      onSuccess: (data) => {
+        setScrapedData(data);
+        setShowAlert(`Pobrano dane z linku: ${data.title}`);
+        setTimeout(() => setShowAlert(""), 5000);
+      },
     });
   };
 
+  // GENROWANIE TREŚCI
   const handleGenerate = (shouldOverwrite: boolean) => {
     if (!scrapedData) return;
 
@@ -42,7 +67,8 @@ export default function Generate() {
       { ...scrapedData, overwrite: shouldOverwrite },
       {
         onSuccess: (newPost) => {
-          alert(`Sukces! Wygenerowano treści dla: ${newPost.title}`);
+          setShowAlert(`Wygenerowano treści dla: ${newPost.title}`);
+          setTimeout(() => setShowAlert(""), 5000);
         },
       },
     );
@@ -52,14 +78,17 @@ export default function Generate() {
     if (!promptState) return;
 
     editPromptMutation.mutate(promptState, {
-      onSuccess: () =>
-        alert("Konfiguracja została zaktualizowana w bazie danych!"),
+      onSuccess: () => {
+        setShowAlert(`Konfiguracja promptów została zaktualizowana!`);
+        setTimeout(() => setShowAlert(""), 5000);
+      },
     });
   };
 
   return (
     <div className={style.container}>
-        {/* Sekcja główna Scrapera */}
+      <h3 style={{ color: "green" }}>{showAlert}</h3>
+      {/* Sekcja główna Scrapera */}
       <div className={style.scraperSection}>
         <input
           value={urlInput}
@@ -73,7 +102,7 @@ export default function Generate() {
           className={style.primaryButton}
         >
           {scrapeMutation.isPending
-            ? "Uruchamianie Chromium..."
+            ? "Pobieranie danych..."
             : "Pobierz dane z linku"}
         </button>
       </div>
@@ -89,8 +118,8 @@ export default function Generate() {
 
       <hr className={style.divider} />
 
+      {/* Przycisk generowania LLM */}
       <div className={style.promptToggleSection}>
-        {/* Przycisk 1: Pierwsze generowanie (pokazuje się, gdy NIE MA jeszcze danych w generatedData) */}
         {scrapedData && !generatedData && (
           <button
             onClick={() => handleGenerate(false)}
@@ -100,8 +129,6 @@ export default function Generate() {
             {isGenerating ? "Generowanie..." : "🚀 Generuj posty na sociale!"}
           </button>
         )}
-
-        {/* Przycisk 2: Ponowne generowanie (pokazuje się, gdy dane JUŻ SĄ w generatedData) */}
         {scrapedData && generatedData && (
           <button
             onClick={() => handleGenerate(true)} // overwrite: true
@@ -111,8 +138,6 @@ export default function Generate() {
             {isGenerating ? "Generowanie..." : "🔄 Wygeneruj ponownie"}
           </button>
         )}
-
-        {/* Przycisk do promptów wyciągnięty na zewnątrz, żeby był dostępny w obu przypadkach */}
         {scrapedData && (
           <button
             type="button"
@@ -127,12 +152,33 @@ export default function Generate() {
       {/* Dynamiczny panel edycji promptu */}
       {showPrompt && (
         <div className={style.promptPanel}>
-          <h3>Główny Prompt Systemowy (LLM)</h3>
+          <div className={style.promptHeader}>
+            <h3>Główny Prompt Systemowy Groq </h3>
+            <img
+              src={Groq}
+              alt="Groq"
+              className={style.groqIcon}
+              style={{
+                width: "25px",
+                height: "25px",
+                backgroundColor: "#F05A28",
+                borderRadius: "50%",
+                padding: "5px",
+                marginRight: "10px",
+              }}
+            />
+          </div>
+          <button
+            onClick={handleUpdatePrompt}
+            disabled={editPromptMutation.isPending}
+            className={style.saveButton}
+          >
+            {editPromptMutation.isPending ? "Zapisywanie..." : "Zapisz"}
+          </button>
           {isLoadingPrompt || !promptState ? (
             <p>Ładowanie konfiguracji z bazy...</p>
           ) : (
             <>
-              {/* 3. Powiązanie wartości bezpośrednio z obiektem promptState */}
               <textarea
                 value={promptState.systemPrompt}
                 onChange={(e) =>
@@ -151,7 +197,6 @@ export default function Generate() {
             <p>Ładowanie konfiguracji z bazy...</p>
           ) : (
             <>
-              {/* 3. Powiązanie wartości bezpośrednio z obiektem promptState */}
               {promptState.allowedCategories.map((cat, index) => (
                 <div
                   className={style.categories}
@@ -182,7 +227,6 @@ export default function Generate() {
               placeholder="Dodaj nową kategorię..."
               className={style.categoryInput}
               onKeyDown={(e) => {
-                // Dodawanie po kliknięciu Enter
                 if (e.key === "Enter") {
                   e.preventDefault();
                   if (!newCategoryInput.trim()) return;
@@ -226,7 +270,17 @@ export default function Generate() {
           </div>
           <div className={style.promptSubsection}>
             <div>
-              <h3>Prompt Facebook</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <FaFacebook
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    color: "#1877F2",
+                  }}
+                />
+              </div>
+
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -273,7 +327,16 @@ export default function Generate() {
               )}
             </div>
             <div>
-              <h3>Prompt LinkedIn</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <FaLinkedin
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    color: "#0A66C2",
+                  }}
+                />
+              </div>
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -320,7 +383,10 @@ export default function Generate() {
               )}
             </div>
             <div>
-              <h3>Prompt X</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <FaSquareXTwitter className={style.iconX} />
+              </div>
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -367,7 +433,19 @@ export default function Generate() {
               )}
             </div>
             <div>
-              <h3>Prompt Wykop</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <img
+                  src={Wykop}
+                  alt="Wykop"
+                  className={style.groqIcon}
+                  style={{
+                    height: "30px",
+                    borderRadius: "50%",
+                    padding: "5px",
+                  }}
+                />
+              </div>
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -414,7 +492,16 @@ export default function Generate() {
               )}
             </div>
             <div>
-              <h3>Prompt Discord</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <FaDiscord
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    color: "#5865F2",
+                  }}
+                />
+              </div>
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -461,7 +548,16 @@ export default function Generate() {
               )}
             </div>
             <div>
-              <h3>Prompt Telegram</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <FaTelegram
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    color: "#0088cc",
+                  }}
+                />
+              </div>
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -494,7 +590,7 @@ export default function Generate() {
                               ...prev,
                               discord: {
                                 ...prev.discord,
-                                contentDescription: e.target.value, // Poprawny deep-spread i usunięta literówka
+                                contentDescription: e.target.value,
                               },
                             }
                           : null,
@@ -508,7 +604,16 @@ export default function Generate() {
               )}
             </div>
             <div>
-              <h3>Prompt Reddit</h3>
+              <div className={style.promptHeader}>
+                <h3>Prompt</h3>
+                <FaRedditSquare
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    color: "#FF4500",
+                  }}
+                />
+              </div>
               {isLoadingPrompt || !promptState ? (
                 <p>Ładowanie konfiguracji z bazy...</p>
               ) : (
@@ -574,15 +679,9 @@ export default function Generate() {
               )}
             </div>
           </div>
-          <button
-            onClick={handleUpdatePrompt}
-            disabled={editPromptMutation.isPending}
-            className={style.saveButton}
-          >
-            {editPromptMutation.isPending ? "Zapisywanie..." : "Zapisz"}
-          </button>
         </div>
       )}
+
       {/* Podgląd postów */}
       {generatedData && <ResultsView data={generatedData} />}
     </div>
