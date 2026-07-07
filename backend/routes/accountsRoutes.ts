@@ -99,7 +99,7 @@ router.post(
         if (!botToken || !chatId) {
           return res
             .status(400)
-            .json("Dla platformy Telegram wymagany jest webhookUrl");
+            .json("Dla platformy Telegram wymagany jest botToken oraz chatId");
         }
 
         try {
@@ -133,6 +133,7 @@ router.post(
         userId: userId,
         platform,
         profileName,
+        credentials,
       });
 
       return res.status(201).json({
@@ -291,13 +292,21 @@ router.get(
             expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
           }
 
+          const credentials = {
+            accessToken: tokenData.access_token,
+            refreshToken: tokenData.refresh_token || "",
+            expiresAt,
+          };
+
+          let profileId = "";
+          let profileName = "";
+          let picture = "";
+
           try {
             const base64Payload = tokenData.id_token.split(".")[1];
             const decodedPayload = JSON.parse(
               Buffer.from(base64Payload, "base64").toString("utf-8"),
             );
-
-            console.log("=== ZDEKODOWANY ID TOKEN PAYLOAD ===", decodedPayload);
 
             profileId = decodedPayload.sub;
             picture = decodedPayload.picture;
@@ -318,7 +327,20 @@ router.get(
               .json("Nie udało się sparsować danych profilu z ID Tokena.");
           }
 
-          break;
+          await Account.findOneAndUpdate(
+            { userId, platform: "linkedin", profileId },
+            {
+              userId,
+              platform: "linkedin",
+              profileId,
+              profileName,
+              picture,
+              credentials,
+            },
+            { upsert: true, new: true },
+          );
+
+          return res.redirect("http://localhost:5173/accounts?connect=success");
         }
 
         //REDDIT
@@ -419,14 +441,6 @@ router.get(
           );
 
           const accountsData = await accountsResponse.json();
-
-          console.log(
-            "📊 Pełna odpowiedź /me/accounts:",
-            JSON.stringify(accountsData, null, 2),
-          );
-          console.log("🔍 accountsData.data:", accountsData.data);
-          console.log("🔍 Czy data istnieje?", !!accountsData.data);
-          console.log("🔍 Czy data.length > 0?", accountsData.data?.length);
 
           if (accountsData.error) {
             return res.status(400).json({
