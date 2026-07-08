@@ -1,4 +1,5 @@
 import style from "./PostProposal.module.css";
+import { useState } from "react";
 import {
   FaFacebook,
   FaLinkedin,
@@ -8,19 +9,26 @@ import {
 } from "react-icons/fa";
 import { IoLogoDiscord } from "react-icons/io5";
 import { type PlatformType } from "../../types/generatedTypes";
-import React from "react";
 import Wykop from "../../assets/wykop.png";
-import { useGetAllAccounts } from "../../hooks/accountHooks";
+import UploadButtonAndForm from "./UploadButtonAndForm";
+
+interface UploadContent {
+  accountId: string;
+  accountName: string;
+  createdAt: Date;
+}
 
 interface SocialContent {
+  id?: string;
   title?: string;
   content: string;
   subreddit?: string;
   additional_photos?: string;
-  uploaded: boolean;
+  uploaded: UploadContent[];
 }
 
 interface SocialPreviewProps {
+  id: string;
   platform: PlatformType;
   contentData: SocialContent;
   globalLink?: string | null;
@@ -82,6 +90,7 @@ const PLATFORM_CONFIG: Record<PlatformType, PlatformItemConfig> = {
 };
 
 export default function PostProposal({
+  id,
   platform,
   contentData,
   globalLink,
@@ -121,6 +130,8 @@ export default function PostProposal({
           </div>
         )}
       </div>
+
+      <UploadButtonAndForm platform={platform} postId={id} />
     </div>
   );
 }

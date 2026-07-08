@@ -2,7 +2,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import api from "../services/api";
 import { type Prompt } from "../types/promptTypes";
 
-const PROMPTS_KEY = ["promptsConfig"];
+const PROMPTS_KEY = ["PromptsConfig"];
 
 export const useGetPrompts = () => {
   return useQuery<Prompt>({

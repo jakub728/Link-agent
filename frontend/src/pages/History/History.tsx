@@ -65,10 +65,10 @@ export default function History() {
               )}
             </div>
 
-            <h3>Opublikuj</h3>
+            {/* <h3>Opublikuj</h3>
             {!openView && (
               <div className={style.buttons}>
-                <button disabled={history[0]?.facebook.uploaded}>
+                <button disabled={history.facebook.uploaded}>
                   <FaFacebook
                     size={24}
                     color={
@@ -103,7 +103,7 @@ export default function History() {
                   <IoIosArrowDown size={24} color="#000000" />
                 </button>
               </div>
-            )}
+            )} */}
             <div style={{ maxWidth: "1400px", width: "100%", margin: "auto" }}>
               {openView && (
                 <>

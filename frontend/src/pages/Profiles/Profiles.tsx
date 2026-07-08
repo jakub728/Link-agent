@@ -11,7 +11,7 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import wykop from "../../assets/Wykop.png";
-import { HiH2 } from "react-icons/hi2";
+
 
 export default function Profiles() {
   const { data, isLoading } = useGetAllAccounts();

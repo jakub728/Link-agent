@@ -1,4 +1,5 @@
 export interface AccountInterface {
+  _id: string;
   userId: string;
   platform: string;
   profileId: string;

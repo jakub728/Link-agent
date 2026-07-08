@@ -18,6 +18,10 @@ export default function Login() {
         login: loginInput,
         password,
       });
+
+      if (!response.data?.user) {
+        throw new Error("Nieprawidłowa odpowiedź serwera");
+      }
       return response.data.user;
     },
     onSuccess: (userData) => {
@@ -25,7 +29,7 @@ export default function Login() {
       navigate("/");
     },
     onError: (error: any) => {
-      alert(error.response?.data?.message || "Błąd logowania");
+      alert(error.response?.data?.message || error.message ||"Błąd logowania");
     },
   });
 

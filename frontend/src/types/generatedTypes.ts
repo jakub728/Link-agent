@@ -5,17 +5,23 @@ export interface ScrapedLinkData {
   description: string | null;
 }
 
+export interface UploadedAccount {
+  accountId: string;
+  accountName: string;
+  createdAt: Date;
+}
+
 export interface GeneratedPostAll {
   title: string;
   content: string;
-  uploaded: boolean;
+  uploaded: UploadedAccount[];
   additional_photo: string | null;
 }
 export interface GeneratedPostReddit {
   title: string;
   content: string;
   subreddit: string;
-  uploaded: boolean;
+  uploaded: UploadedAccount[];
   additional_photo: string | null;
 }
 

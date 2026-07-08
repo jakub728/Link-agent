@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../services/api";
 
-//https://ai.sulisz.pl/user/admin-create-user
+// 1. HOOK: Tworzenie nowego użytkownika [Admin]
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
 
