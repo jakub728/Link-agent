@@ -3,7 +3,7 @@ import { type GeneratingInterface } from "../types/generatedInterface";
 
 const UploadedAccountSchema = new Schema(
   {
-    id: { type: Schema.Types.ObjectId, ref: "Account", required: true },
+    accountId: { type: Schema.Types.ObjectId, ref: "Account", required: true },
     uploaded: { type: Boolean, default: false },
   },
   {

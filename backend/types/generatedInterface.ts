@@ -1,5 +1,10 @@
 import { Types } from "mongoose";
 
+export interface UploadedAccount {
+  accountId: Types.ObjectId | string;
+  uploaded: boolean;
+}
+
 export interface DataFromLink {
   title: string;
   description: string | null;
@@ -11,7 +16,7 @@ export interface ISocialPost {
   title: string;
   content: string;
   additional_photo: string | null;
-  uploaded?: boolean;
+  uploaded?: UploadedAccount[];
 }
 
 export interface IRedditPost extends ISocialPost {
