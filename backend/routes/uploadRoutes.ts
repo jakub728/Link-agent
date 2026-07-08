@@ -6,6 +6,8 @@ import GeneratedData from "../model/generated";
 import Account from "../model/conectedAccouts";
 import { type ISocialPost, IRedditPost } from "../types/generatedInterface";
 
+//! ROUTA DO PRZESYŁANIA WYGNEROWANYCH TREŚCI NA PLATFORMY SPOŁECZNOŚCIOWE
+//https://ai.sulisz.pl/upload/content
 const router = express.Router();
 router.post(
   "/content",
@@ -113,7 +115,7 @@ router.post(
 
               if (createdPostId && globalLink) {
                 try {
-                  const commentText = `Link do pełnego artykułu: ${globalLink}`;
+                  const commentText = `Link do artykułu: ${globalLink}`;
                   await axios.post(
                     `https://graph.facebook.com/v20.0/${createdPostId}/comments`,
                     null,

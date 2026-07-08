@@ -74,6 +74,12 @@ router.post(
         return res.status(401).json({ message: "Niepoprawny login lub hasło" });
       }
 
+      if (!user.prompts) {
+        const newPrompts = await AIConfig.create({});
+        user.prompts = newPrompts._id;
+        await user.save();
+      }
+
       const tokenPayload = {
         userId: user._id,
         login: user.login,
