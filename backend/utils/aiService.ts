@@ -89,7 +89,7 @@ export async function generateSocialContent(
       }): ISocialPost => ({
         title: platformData.title || "",
         content: platformData.content || "",
-        uploaded: false,
+        uploaded: [],
         additional_photo: null,
       });
 
