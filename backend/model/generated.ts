@@ -4,7 +4,8 @@ import { type GeneratingInterface } from "../types/generatedInterface";
 const UploadedAccountSchema = new Schema(
   {
     accountId: { type: Schema.Types.ObjectId, ref: "Account", required: true },
-    uploaded: { type: Boolean, default: false },
+    accountName: { type: String },
+    createdAt: { type: Date, default: Date.now },
   },
   {
     _id: false,
@@ -15,7 +16,7 @@ const SocialPostSchema = new Schema(
   {
     title: { type: String, default: "" },
     content: { type: String, required: true },
-    uploaded: [UploadedAccountSchema],
+    uploaded: { type: [UploadedAccountSchema], default: [] },
     additional_photo: { type: String, default: null },
   },
   { _id: false },
@@ -25,7 +26,7 @@ const RedditPostSchema = new Schema(
   {
     title: { type: String, default: "" },
     content: { type: String, required: true },
-    uploaded: [UploadedAccountSchema],
+    uploaded: { type: [UploadedAccountSchema], default: [] },
     subreddit: [{ type: String }],
     additional_photo: { type: String, default: null },
   },

@@ -2,7 +2,8 @@ import { Types } from "mongoose";
 
 export interface UploadedAccount {
   accountId: Types.ObjectId | string;
-  uploaded: boolean;
+  accountName: string;
+  createdAt: Date;
 }
 
 export interface DataFromLink {

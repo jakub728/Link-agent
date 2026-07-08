@@ -63,13 +63,13 @@ router.post(
       const postSubreddit = platformContent.subreddit;
 
       let successCount = 0;
-      const successfulAccountIds: string[] = [];
 
       for (const account of accounts) {
         try {
           switch (platform) {
             case "facebook": {
-              const pageId = account.profileId || account.id;
+              const pageId = account.profileId;
+              const pageName = account.profileName;
               const pageToken = account.credentials?.accessToken;
 
               if (!pageId || !pageToken) {
@@ -136,8 +136,16 @@ router.post(
                   );
                 }
               }
+              await GeneratedData.findByIdAndUpdate(generatedDataId, {
+                $push: {
+                  "facebook.uploaded": {
+                    accountId: account._id.toString(),
+                    accountName: pageName,
+                    createdAt: new Date(),
+                  },
+                },
+              });
 
-              successfulAccountIds.push(account._id.toString());
               successCount++;
               break;
             }
@@ -160,19 +168,6 @@ router.post(
             singlePublishError,
           );
         }
-      }
-
-      if (successfulAccountIds.length > 0) {
-        const uploadsUpdates = successfulAccountIds.map((id) => ({
-          id: id,
-          uploaded: true,
-        }));
-
-        await GeneratedData.findByIdAndUpdate(generatedDataId, {
-          $push: {
-            [`${platform}.uploads`]: { $each: uploadsUpdates },
-          },
-        });
       }
 
       return res.status(200).json({
