@@ -200,6 +200,7 @@ router.get(
             "pages_show_list",
             "pages_manage_posts",
             "pages_read_engagement",
+            "pages_manage_engagement",
           ].join(",");
 
           const authUrl =
@@ -252,7 +253,6 @@ router.get(
       let accessToken = "";
       let refreshToken = "";
       let expiresAt: Date | undefined = undefined;
-
 
       const userId = req.user?.userId;
 
@@ -480,7 +480,7 @@ router.get(
             const pageAccessToken = page.access_token;
             const pageProfileId = page.id;
             const pageProfileName = page.name;
-            const pagePicture = page.picture?.data?.url || "";
+            const pagePicture = `https://graph.facebook.com/${pageProfileId}/picture?type=normal`;
 
             await Account.findOneAndUpdate(
               { userId, profileId: pageProfileId, platform: "facebook" },
@@ -508,6 +508,33 @@ router.get(
         default:
           return res.status(400).json("Nieobsługiwana platforma");
       }
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+);
+
+router.delete(
+  "/delete/:accountId",
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const { accountId } = req.params;
+      const userId = req.user?.userId;
+
+      const deletedAccount = await Account.findOneAndDelete({
+        _id: accountId,
+        userId: userId,
+      });
+
+      if (!deletedAccount) {
+        return res
+          .status(404)
+          .json({ message: "Nie znaleziono konta lub brak uprawnień" });
+      }
+
+      return res.status(200).json({ message: "Konto odłączone" });
     } catch (error) {
       console.error(error);
       next(error);

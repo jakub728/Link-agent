@@ -55,7 +55,7 @@ const AIConfigSchema = new Schema<IAIConfig>(
       default: {
         titleDescription: "Mocny nagłówek przyciągający uwagę na FB",
         contentDescription:
-          "Dwa, trzy zdania na FB z emotkami, dodaj na końcu, że link jest w przypiętym komentarzu",
+          "Dwa, trzy zdania na FB z emotkami, punktorami i hashtagami branżowymi. Zachowaj ton ekspercki, ale przystępny. Na końcu dodaj zachętę do dyskusji w komentarzach. Nie używaj linków w treści posta.",
       },
     },
     linkedin: {
