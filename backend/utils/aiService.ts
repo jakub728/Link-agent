@@ -6,12 +6,13 @@ import AIConfig from "../model/prompt";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
 import { Types } from "mongoose";
+import { sanitizeLLMText } from "../utils/sanitizeAIText";
 
 dotenv.config();
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-interface IGeminiRawOutput {
+interface ILLMRawOutput {
   author: Types.ObjectId | string;
   categories: string[];
   x: { title: string; content: string };
@@ -29,6 +30,7 @@ export async function generateSocialContent(
   description: string | null,
   link: string,
   imageUrl: string | null,
+  modelLLM: string,
 ): Promise<GeneratingInterface> {
   let configDb = await AIConfig.findOne();
   if (!configDb) {
@@ -74,21 +76,21 @@ export async function generateSocialContent(
           content: prompt,
         },
       ],
-      model: "llama-3.1-8b-instant",
+      model: modelLLM,
       response_format: { type: "json_object" },
     });
 
     const responseText = response.choices[0]?.message?.content;
 
     if (responseText) {
-      const rawData: IGeminiRawOutput = JSON.parse(responseText);
+      const rawData: ILLMRawOutput = JSON.parse(responseText);
 
       const mapToSocialPost = (platformData: {
         title: string;
         content: string;
       }): ISocialPost => ({
-        title: platformData.title || "",
-        content: platformData.content || "",
+        title: sanitizeLLMText(platformData.title) || "",
+        content: sanitizeLLMText(platformData.content) || "",
         uploaded: [],
         additional_photo: null,
       });

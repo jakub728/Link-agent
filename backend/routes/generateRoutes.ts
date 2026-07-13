@@ -100,7 +100,9 @@ router.post(
   checkToken,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const { title, description, link, imageUrl, overwrite } = req.body;
+      const { title, description, link, imageUrl, overwrite, model } = req.body;
+
+      const modelLLM = model || "llama-3.1-8b-instant";
 
       const existinGeneration = await GeneratedData.findOne({ title: title });
 
@@ -133,6 +135,7 @@ router.post(
         description || "",
         link,
         localJpgUrl,
+        modelLLM,
       );
 
       const updateData: Record<string, any> = {
