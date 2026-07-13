@@ -170,14 +170,22 @@ router.post(
 
               let createdPostUrn: string | null = null;
 
+              const getOwnerUrn = (id: string): string => {
+                if (!id) return "";
+                if (id.startsWith("urn:li:")) return id;
+                const isNumericOnly = /^\d+$/.test(id);
+                return isNumericOnly
+                  ? `urn:li:organization:${id}`
+                  : `urn:li:person:${id}`;
+              };
+
               if (globalImage) {
                 const registerResponse = await axios.post(
                   "https://api.linkedin.com/v2/assets?action=registerUpload",
                   {
                     registerUploadRequest: {
                       recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
-                      owner: pageId,
-                      supportedUploadMechanisms: ["SYNCHRONOUS_UPLOAD"],
+                      owner: getOwnerUrn(pageId),
                     },
                   },
                   { headers },
@@ -197,7 +205,7 @@ router.post(
                 const postResponse = await axios.post(
                   "https://api.linkedin.com/v2/posts",
                   {
-                    author: pageId,
+                    author: getOwnerUrn(pageId),
                     commentary: postContent,
                     visibility: "PUBLIC",
                     content: {
@@ -220,13 +228,13 @@ router.post(
                 try {
                   const targetUrn = createdPostUrn.startsWith("urn:")
                     ? createdPostUrn
-                    : `urn:li:share:${createdPostUrn}`;
+                    : `urn:li:ugcPost:${createdPostUrn}`;
                   const commentText = `Link do artykułu: ${globalLink}`;
 
                   await axios.post(
                     `https://api.linkedin.com/v2/socialActions/${encodeURIComponent(targetUrn)}/comments`,
                     {
-                      actor: pageId,
+                      actor: getOwnerUrn(pageId),
                       object: targetUrn,
                       commentary: commentText,
                     },

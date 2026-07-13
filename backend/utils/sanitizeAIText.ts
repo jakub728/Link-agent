@@ -12,8 +12,7 @@ export function sanitizeLLMText(text: string): string {
       // 3. Normalizuje znaki końca linii (zamienia windowsowe \r\n na linuxowe \n)
       .replace(/\r\n/g, "\n")
 
-      // 4. (Opcjonalnie) Zamienia długie pauzy typograficzne na zwykłe myślniki,
-      // jeśli sprawiają problemy w Twoich skryptach
+      // 4. Zamienia długie pauzy typograficzne na zwykłe myślniki,
       .replace(/[\u2013\u2014]/g, "-")
 
       // 5. Usuwa wielokrotne spacje obok siebie (opcjonalnie)
