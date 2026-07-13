@@ -151,9 +151,111 @@ router.post(
             }
 
             case "linkedin":
-              // Logika wysyłki na LinkedIn
-              break;
+              const pageId = account.profileId;
+              const pageName = account.profileName;
+              const pageToken = account.credentials?.accessToken;
 
+              if (!pageId || !pageToken) {
+                console.error(
+                  `Brak danych autoryzacji LinkedIn dla konta: ${pageName}`,
+                );
+                continue;
+              }
+
+              const headers = {
+                Authorization: `Bearer ${pageToken}`,
+                "Content-Type": "application/json",
+                "X-Restli-Protocol-Version": "2.0.0",
+              };
+
+              let createdPostUrn: string | null = null;
+
+              if (globalImage) {
+                const registerResponse = await axios.post(
+                  "https://api.linkedin.com/v2/assets?action=registerUpload",
+                  {
+                    registerUploadRequest: {
+                      recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
+                      owner: pageId,
+                      supportedUploadMechanisms: ["SYNCHRONOUS_UPLOAD"],
+                    },
+                  },
+                  { headers },
+                );
+                const uploadUrl =
+                  registerResponse.data.value.uploadMechanism[
+                    "com.linkedin.digitalmedia.uploading.MediaUploadMechanism"
+                  ].uploadUrl;
+                const mediaAssetUrn = registerResponse.data.value.asset;
+
+                await axios.put(uploadUrl, globalImage, {
+                  headers: {
+                    Authorization: `Bearer ${pageToken}`,
+                    "Content-Type": "image/jpg",
+                  },
+                });
+                const postResponse = await axios.post(
+                  "https://api.linkedin.com/v2/posts",
+                  {
+                    author: pageId,
+                    commentary: postContent,
+                    visibility: "PUBLIC",
+                    content: {
+                      media: {
+                        title: "Zdjęcie do wpisu",
+                        id: mediaAssetUrn,
+                      },
+                    },
+                    lifecycleState: "PUBLISHED",
+                  },
+                  { headers },
+                );
+
+                createdPostUrn = postResponse.headers["x-restli-id"];
+              } else {
+                break;
+              }
+
+              if (createdPostUrn && globalLink) {
+                try {
+                  const targetUrn = createdPostUrn.startsWith("urn:")
+                    ? createdPostUrn
+                    : `urn:li:share:${createdPostUrn}`;
+                  const commentText = `Link do artykułu: ${globalLink}`;
+
+                  await axios.post(
+                    `https://api.linkedin.com/v2/socialActions/${encodeURIComponent(targetUrn)}/comments`,
+                    {
+                      actor: pageId,
+                      object: targetUrn,
+                      commentary: commentText,
+                    },
+                    { headers },
+                  );
+                  console.log(
+                    `Dodano komentarz z linkiem do LinkedIn: ${targetUrn}`,
+                  );
+                } catch (commentError: any) {
+                  console.error(
+                    `Nie udało się dodać komentarza na LinkedIn do posta ${createdPostUrn}:`,
+                    commentError.response?.data || commentError.message,
+                  );
+                }
+              }
+
+              // Aktualizacja stanu w bazie danych (analogicznie do Twojego FB)
+              await GeneratedData.findByIdAndUpdate(generatedDataId, {
+                $push: {
+                  "linkedin.uploaded": {
+                    accountId: account._id.toString(),
+                    accountName: pageName,
+                    createdAt: new Date(),
+                  },
+                },
+              });
+
+              successCount++;
+              break;
             case "reddit":
               // Twoja konfiguracja pod Reddit developer API
               break;
