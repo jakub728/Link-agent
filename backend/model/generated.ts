@@ -52,6 +52,7 @@ const GeneratingSchema = new Schema<GeneratingInterface>(
   },
   {
     collection: "generated_data",
+    timestamps: true,
   },
 );
 

@@ -102,15 +102,11 @@ router.post(
     try {
       const { title, description, link, imageUrl, overwrite } = req.body;
 
-      console.log(`[Generator] Rozpoczynam proces dla artykułu: ${title}\n`);
       const existinGeneration = await GeneratedData.findOne({ title: title });
+
       if (existinGeneration && !overwrite) {
         console.log("[Generator] Treści już istnieją\n");
         return res.status(201).json(existinGeneration);
-      }
-      if (existinGeneration && overwrite) {
-        console.log("[Generator] Nadpisywanie istniejących treści\n");
-        await GeneratedData.deleteOne({ title: title });
       }
 
       let localJpgUrl: string | null = null;
@@ -131,7 +127,6 @@ router.post(
         }
       }
 
-      console.log("[AI] Generowanie treści przez model LLM...\n");
       const aiContent = await generateSocialContent(
         req.user?.userId || "",
         title,
@@ -140,24 +135,55 @@ router.post(
         localJpgUrl,
       );
 
-      const newGeneration = await GeneratedData.create({
+      const updateData: Record<string, any> = {
         title,
         description,
         link,
         imageUrl: localJpgUrl,
         categories: aiContent.categories,
         author: req.user?.userId,
-        x: aiContent.x,
-        facebook: aiContent.facebook,
-        linkedin: aiContent.linkedin,
-        reddit: aiContent.reddit,
-        wykop: aiContent.wykop,
-        discord: aiContent.discord,
-        telegram: aiContent.telegram,
-      });
-      console.log(`[Generator] Sukces! Utworzono sociale dla: "${title}"`);
 
-      return res.status(200).json(newGeneration);
+        // FACEBOOK
+        "facebook.title": aiContent.facebook?.title,
+        "facebook.content": aiContent.facebook?.content,
+
+        // LINKEDIN
+        "linkedin.title": aiContent.linkedin?.title,
+        "linkedin.content": aiContent.linkedin?.content,
+
+        // X (TWITTER)
+        "x.title": aiContent.x?.title,
+        "x.content": aiContent.x?.content,
+
+        // REDDIT
+        "reddit.title": aiContent.reddit?.title,
+        "reddit.content": aiContent.reddit?.content,
+
+        // WYKOP
+        "wykop.title": aiContent.wykop?.title,
+        "wykop.content": aiContent.wykop?.content,
+
+        // DISCORD
+        "discord.title": aiContent.discord?.title,
+        "discord.content": aiContent.discord?.content,
+
+        // TELEGRAM
+        "telegram.title": aiContent.telegram?.title,
+        "telegram.content": aiContent.telegram?.content,
+      };
+
+      const updatedGeneration = await GeneratedData.findOneAndUpdate(
+        { title: title },
+        { $set: updateData },
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+        },
+      );
+
+      console.log(`[Generator] Sukces! Zapisano dane dla artykułu: "${title}"`);
+      return res.status(200).json(updatedGeneration);
     } catch (error: any) {
       console.error("Błąd generowania socialów:", error);
       next(error);
