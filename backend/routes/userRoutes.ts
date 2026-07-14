@@ -51,6 +51,29 @@ router.get(
   },
 );
 
+//GET USER FROM ID
+////https://ai.sulisz.pl/user/:id
+router.get(
+  "/:id",
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const user = await User.findById(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "Brak użytkownika w bazie" });
+      }
+
+      return res.status(200).json({ message: user });
+    } catch (error) {
+      console.error(error);
+      next(error as any);
+    }
+  },
+);
+
 //LOGIN USER
 //https://ai.sulisz.pl/user/login
 router.post(

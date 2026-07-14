@@ -4,7 +4,7 @@ import { type AuthenticatedRequest } from "../types/userInterface";
 import { checkToken } from "../middleware/checkToken";
 import GeneratedData from "../model/generated";
 import Account from "../model/conectedAccouts";
-import { type ISocialPost, IRedditPost } from "../types/generatedInterface";
+
 
 //! ROUTA DO PRZESYŁANIA WYGNEROWANYCH TREŚCI NA PLATFORMY SPOŁECZNOŚCIOWE
 //https://ai.sulisz.pl/upload/content
@@ -265,11 +265,11 @@ router.post(
               successCount++;
               break;
             case "reddit":
-              // Twoja konfiguracja pod Reddit developer API
+              // Future
               break;
 
             case "discord":
-              // Wrzutka na webhooka lub przez bota
+              // Future
               break;
           }
         } catch (singlePublishError) {
