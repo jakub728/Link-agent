@@ -66,7 +66,7 @@ router.get(
         return res.status(404).json({ message: "Brak użytkownika w bazie" });
       }
 
-      return res.status(200).json({ message: user });
+      return res.status(200).json( user.login );
     } catch (error) {
       console.error(error);
       next(error as any);
