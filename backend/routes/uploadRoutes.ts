@@ -227,18 +227,33 @@ router.post(
                 await new Promise((resolve) => setTimeout(resolve, 1500));
 
                 const postResponse = await axios.post(
-                  "https://api.linkedin.com/v2/posts",
+                  "https://api.linkedin.com/v2/ugcPosts",
                   {
-                    author: getOwnerUrn(pageId),
-                    commentary: postContent,
-                    visibility: "PUBLIC",
-                    content: {
-                      media: {
-                        title: postTitle || "Zdjęcie do wpisu",
-                        id: mediaAssetUrn,
+                    author: getOwnerUrn(pageId), 
+                    lifecycleState: "PUBLISHED",
+                    specificContent: {
+                      "com.linkedin.ugc.ShareContent": {
+                        shareCommentary: {
+                          text: postContent,
+                        },
+                        shareMediaCategory: "IMAGE",
+                        media: [
+                          {
+                            status: "READY",
+                            description: {
+                              text: postTitle || "Zdjęcie do wpisu",
+                            },
+                            media: mediaAssetUrn, // urn:li:digitalmediaAsset:...
+                            title: {
+                              text: postTitle || "Zdjęcie do wpisu",
+                            },
+                          },
+                        ],
                       },
                     },
-                    lifecycleState: "PUBLISHED",
+                    visibility: {
+                      "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+                    },
                   },
                   { headers },
                 );
