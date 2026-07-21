@@ -7,12 +7,14 @@ import bcryptjs from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { checkAdmin, checkToken } from "../middleware/checkToken";
+import { loginLimiter } from "../middleware/rateLimiter";
 import { type AuthenticatedRequest } from "../types/userInterface";
 import User from "../model/user";
 import AIConfig from "../model/prompt";
 
 dotenv.config();
 const router = express.Router();
+const isProduction = process.env.NODE_ENV === "production";
 
 //CHECK USER
 //https://ai.sulisz.pl/user/me
@@ -66,7 +68,7 @@ router.get(
         return res.status(404).json({ message: "Brak użytkownika w bazie" });
       }
 
-      return res.status(200).json( user.login );
+      return res.status(200).json(user.login);
     } catch (error) {
       console.error(error);
       next(error as any);
@@ -78,6 +80,7 @@ router.get(
 //https://ai.sulisz.pl/user/login
 router.post(
   "/login",
+  loginLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { login, password } = req.body;
@@ -148,7 +151,8 @@ router.post(
     try {
       res.clearCookie("auth_token", {
         httpOnly: true,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
       });
       return res.status(200).json({ message: "Wylogowano pomyślnie" });
     } catch (error) {

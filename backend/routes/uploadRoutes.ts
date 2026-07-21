@@ -243,7 +243,7 @@ router.post(
                             description: {
                               text: postTitle || "Zdjęcie do wpisu",
                             },
-                            media: mediaAssetUrn, // urn:li:digitalmediaAsset:...
+                            media: mediaAssetUrn, 
                             title: {
                               text: postTitle || "Zdjęcie do wpisu",
                             },
@@ -276,7 +276,7 @@ router.post(
                     {
                       actor: getOwnerUrn(pageId),
                       message: {
-                        text: commentText, // ✅ Poprawne pole dla komentarzy w REST API LinkedIn
+                        text: commentText, 
                       },
                     },
                     { headers },
