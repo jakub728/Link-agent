@@ -10,8 +10,21 @@ import { checkToken } from "../middleware/checkToken";
 
 const router = express.Router();
 
-//Historia wpisów
-//http:localhost:5000/generate/history
+interface UpdateContent {
+  platform:
+    | "facebook"
+    | "linkedin"
+    | "wykop"
+    | "reddit"
+    | "telegram"
+    | "discord"
+    | "x";
+  title: string;
+  content: string;
+}
+
+// HISTORIA WPISÓW
+// https://ai.sulisz.pl/generate/history
 router.get(
   "/history",
   checkToken,
@@ -29,8 +42,8 @@ router.get(
   },
 );
 
-//Pobieranie danych z linku
-//http:localhost:5000/generate/data-from
+// POBIERANIE DANYCH Z LINKU
+// https://ai.sulisz.pl/generate/data-from
 router.post(
   "/data-from",
   checkToken,
@@ -93,8 +106,8 @@ router.post(
   },
 );
 
-//Generowanie treści na wszystkie sociale na raz
-//http:localhost:5000/generate/content
+// GENEROWANIE TREŚCI NA WSZYSTKIE SOCIALE
+// https://ai.sulisz.pl/generate/content
 router.post(
   "/content",
   checkToken,
@@ -189,6 +202,51 @@ router.post(
       return res.status(200).json(updatedGeneration);
     } catch (error: any) {
       console.error("Błąd generowania socialów:", error);
+      next(error);
+    }
+  },
+);
+
+// EDYCJA WYGENEROWANEGO CONTENTU MANUALNIE
+// https://ai.sulisz.pl/generate/edit/:generationId
+router.patch(
+  "/edit/:generationId",
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const { generationId } = req.params;
+      const { title, content, platform }: UpdateContent = req.body;
+
+      if (!generationId || !platform) {
+        return res
+          .status(400)
+          .json({ message: "Wymagane id generacji oraz platforma" });
+      }
+
+      if (!title && !content) {
+        return res.status(400).json({ message: "Brak pól do edycji" });
+      }
+
+      const updateFields: Record<string, any> = {};
+      if (title !== undefined) updateFields[`${platform}.title`] = title;
+      if (content !== undefined) updateFields[`${platform}.content`] = content;
+
+      // Wykonujemy sam zapis w bazie bez pobierania dokumentu
+      const result = await GeneratedData.updateOne(
+        { _id: generationId },
+        { $set: updateFields },
+      );
+
+      // Jeśli żaden dokument nie pasował do podanego _id
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ message: "Nie znaleziono posta" });
+      }
+
+      return res.status(200).json({
+        message: `Zaktualizowano platformę ${platform}`,
+      });
+    } catch (error) {
+      console.error("Błąd edycji:", error);
       next(error);
     }
   },
