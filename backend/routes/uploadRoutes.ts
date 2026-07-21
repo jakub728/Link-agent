@@ -223,22 +223,19 @@ router.post(
                     "Content-Type": "image/jpg",
                   },
                 });
+
+                await new Promise((resolve) => setTimeout(resolve, 1500));
+
                 const postResponse = await axios.post(
                   "https://api.linkedin.com/v2/posts",
                   {
                     author: getOwnerUrn(pageId),
                     commentary: postContent,
                     visibility: "PUBLIC",
-                    distribution: {
-                      feedDistribution: "MAIN_FEED",
-                      targetEntities: [],
-                      thirdPartyDistributionChannels: [],
-                    },
                     content: {
                       media: {
                         title: postTitle || "Zdjęcie do wpisu",
                         id: mediaAssetUrn,
-                        status: "READY", 
                       },
                     },
                     lifecycleState: "PUBLISHED",
