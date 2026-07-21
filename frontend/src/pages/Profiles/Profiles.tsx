@@ -2,6 +2,7 @@ import style from "./Profiles.module.css";
 import {
   useGetAllAccounts,
   useConnectPlatform,
+  useDisconnectAccount,
 } from "../../hooks/accountHooks";
 import {
   FaLinkedin,
@@ -11,17 +12,21 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import wykop from "../../assets/Wykop.png";
-
+import { useState } from "react";
 
 export default function Profiles() {
   const { data, isLoading } = useGetAllAccounts();
-  const { mutate: connectPlatform, isPending } = useConnectPlatform();
+  const { mutate: connectPlatform, isPending: connectPending } =
+    useConnectPlatform();
+  const { mutate: disconnectPlatform, isPending: disconnectPending } =
+    useDisconnectAccount();
+
+  const [discordWebhookState, setDiscordWebhookState] = useState<string>("");
+  const [telegramBotIdState, setTelegramBotIdState] = useState<string>("");
+  const [telegramChatIdState, setTelegramChatIdState] = useState<string>("");
 
   if (isLoading) return <div>Ładowanie...</div>;
-
-  if (!data) {
-    return <div>Brak danych</div>;
-  }
+  if (!data) return <div>Brak danych</div>;
 
   const platformIcons: Record<string, React.ReactNode> = {
     linkedin: <FaLinkedin size={32} color="#0A66C2" />,
@@ -31,10 +36,31 @@ export default function Profiles() {
       <img
         src={wykop}
         style={{ width: "32px", height: "32px", objectFit: "contain" }}
+        alt="Wykop"
       />
     ),
     discord: <FaDiscord size={32} color="#5865F2" />,
     telegram: <FaTelegram size={32} color="#26A5E4" />,
+  };
+
+  const handleConnect = (platformName: string) => {
+    connectPlatform(
+      {
+        platform: platformName,
+        webhook: platformName === "discord" ? discordWebhookState : undefined,
+        botId: platformName === "telegram" ? telegramBotIdState : undefined,
+        chatId: platformName === "telegram" ? telegramChatIdState : undefined,
+      },
+      {
+        onSuccess: () => {
+          if (platformName === "discord") setDiscordWebhookState("");
+          if (platformName === "telegram") {
+            setTelegramBotIdState("");
+            setTelegramChatIdState("");
+          }
+        },
+      },
+    );
   };
 
   const renderPlatformSection = (
@@ -50,30 +76,66 @@ export default function Profiles() {
           {platformIcons[platformKey]}
           {title}
         </h2>
+
+        {platformName === "discord" && (
+          <div className={style.manualForm}>
+            <input
+              type="text"
+              placeholder="Webhook URL"
+              value={discordWebhookState}
+              onChange={(e) => setDiscordWebhookState(e.target.value)}
+              className={style.inputField}
+            />
+          </div>
+        )}
+
+        {platformName === "telegram" && (
+          <div className={style.manualForm}>
+            <input
+              type="text"
+              placeholder="Bot Token"
+              value={telegramBotIdState}
+              onChange={(e) => setTelegramBotIdState(e.target.value)}
+              className={style.inputField}
+            />
+            <input
+              type="text"
+              placeholder="Chat ID"
+              value={telegramChatIdState}
+              onChange={(e) => setTelegramChatIdState(e.target.value)}
+              className={style.inputField}
+            />
+          </div>
+        )}
+
         <button
           className={style.addButton}
-          disabled={isPending}
-          onClick={() => connectPlatform(platformName)}
+          disabled={connectPending}
+          onClick={() => handleConnect(platformName)}
         >
-          {isPending ? "Ładowanie..." : "Dodaj konto"}
+          {connectPending ? "Ładowanie..." : "Dodaj konto"}
         </button>
+
         {accounts.length !== 0 ? (
-          accounts.map((account, index) => (
-            <div key={index} className={style.profile}>
+          accounts.map((account) => (
+            <div key={account._id} className={style.profile}>
               {account.picture ? (
-                <img src={account.picture} />
+                <img src={account.picture} alt={account.profileName} />
               ) : (
                 platformIcons[account.platform.toLowerCase()]
               )}
 
-              <h2 key={account.profileId}>{account.profileName}</h2>
-              <button>Usuń konto</button>
+              <h2>{account.profileName}</h2>
+              <button
+                disabled={disconnectPending}
+                onClick={() => disconnectPlatform(account._id)}
+              >
+                {disconnectPending ? "Ładowanie..." : "Odłącz konto"}
+              </button>
             </div>
           ))
         ) : (
-          <>
-            <p>Brak kont</p>
-          </>
+          <div className={style.profile}>Brak kont</div>
         )}
         <hr />
       </div>

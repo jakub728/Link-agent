@@ -11,6 +11,7 @@ import { IoLogoDiscord } from "react-icons/io5";
 import { type PlatformType } from "../../types/generatedTypes";
 import Wykop from "../../assets/wykop.png";
 import UploadButtonAndForm from "./UploadButtonAndForm";
+import { useEditContent } from "../../hooks/generateHooks";
 
 interface UploadContent {
   accountId: string;
@@ -96,28 +97,112 @@ export default function PostProposal({
   globalLink,
   globalImage,
 }: SocialPreviewProps) {
+  if (!contentData) return null;
   const config = PLATFORM_CONFIG[platform];
 
-  if (!contentData) return null;
-
   const IconComponent = config.icon;
+
+  const [editPost, setEditPost] = useState(false);
+  const [newTitle, setNewTitle] = useState(contentData.title || "");
+  const [newContent, setNewContent] = useState(contentData.content || "");
+
+  const { mutate: editContent, isPending } = useEditContent();
+
+  const handleSave = () => {
+    editContent(
+      {
+        generationId: id,
+        platform,
+        title: newTitle,
+        content: newContent,
+      },
+      {
+        onSuccess: () => {
+          setEditPost(false);
+        },
+      },
+    );
+  };
+
+  const handleCancel = () => {
+    setNewTitle(contentData.title || "");
+    setNewContent(contentData.content || "");
+    setEditPost(false);
+  };
 
   return (
     <div className={style.card}>
       <div className={style.header} style={{ borderLeftColor: config.color }}>
-        <IconComponent size={30} color={config.color} />
-        <span className={style.label} style={{ color: config.color }}>
-          {config.label}
-        </span>
+        <div className={style.headerSmall}>
+          <IconComponent size={30} color={config.color} />
+          <span className={style.label} style={{ color: config.color }}>
+            {config.label}
+          </span>
+        </div>
+
+        {editPost && (
+          <div className={style.actions}>
+            <button
+              onClick={handleCancel}
+              disabled={isPending}
+              className={style.cancelBtn}
+            >
+              Anuluj
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isPending}
+              className={style.saveBtn}
+            >
+              {isPending ? "Zapisywanie..." : "Zapisz"}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={style.body}>
-        {config.hasTitle && contentData.title && (
-          <h4 className={style.postTitle}>{contentData.title}</h4>
+        {/* EDYCJA LUB TYTUŁ */}
+        {config.hasTitle &&
+          (editPost ? (
+            <input
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className={style.titleInput}
+              placeholder="Tytuł posta..."
+            />
+          ) : (
+            contentData.title && (
+              <h4
+                className={style.postTitle}
+                onClick={() => setEditPost(true)}
+                title="Kliknij, aby edytować"
+              >
+                {newTitle} ✏️
+              </h4>
+            )
+          ))}
+
+        {/* EDYCJA LUB TREŚĆ */}
+        {editPost ? (
+          <textarea
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            className={style.contentTextarea}
+            rows={5}
+            placeholder="Treść posta..."
+          />
+        ) : (
+          <p
+            className={style.postContent}
+            onClick={() => setEditPost(true)}
+            title="Kliknij, aby edytować"
+          >
+            {newContent}
+          </p>
         )}
 
-        <p className={style.postContent}>{contentData.content}</p>
-
+        {/* ZAŁĄCZNIKI */}
         {(globalLink || globalImage) && (
           <div className={style.attachmentPreview}>
             {globalImage && (

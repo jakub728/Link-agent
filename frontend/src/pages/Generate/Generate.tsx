@@ -26,6 +26,7 @@ export default function Generate() {
   const [promptState, setPromptState] = useState<Prompt | null>(null);
   const [newCategoryInput, setNewCategoryInput] = useState("");
   const [showAlert, setShowAlert] = useState("");
+  const [model, setModel] = useState("llama-3.1-8b-instant");
 
   const scrapeMutation = useScrapeLink();
   const {
@@ -54,7 +55,9 @@ export default function Generate() {
       onSuccess: (data) => {
         setScrapedData(data);
         setShowAlert(`Pobrano dane z linku: ${data.title}`);
-        setTimeout(() => setShowAlert(""), 5000);
+        setTimeout(() => {
+          setShowAlert("");
+        }, 5000);
       },
     });
   };
@@ -118,42 +121,110 @@ export default function Generate() {
 
       <hr className={style.divider} />
 
-      {/* Przycisk generowania LLM */}
-      <div className={style.promptToggleSection}>
-        {scrapedData && !generatedData && (
-          <button
-            onClick={() => handleGenerate(false)}
-            disabled={isGenerating}
-            className={style.generateButton}
-          >
-            {isGenerating ? "Generowanie..." : "🚀 Generuj posty na sociale!"}
-          </button>
-        )}
-        {scrapedData && generatedData && (
-          <button
-            onClick={() => handleGenerate(true)} // overwrite: true
-            disabled={isGenerating}
-            className={style.generateButton}
-          >
-            {isGenerating ? "Generowanie..." : "🔄 Wygeneruj ponownie"}
-          </button>
-        )}
-        {scrapedData && (
-          <button
-            type="button"
-            onClick={() => setShowPrompt(!showPrompt)}
-            className={style.secondaryButton}
-          >
-            {showPrompt ? "❌ Ukryj prompty" : "⚙️ Dostosuj prompty AI"}
-          </button>
-        )}
-      </div>
+      <>
+        {/* Przycisk generowania LLM */}
+        <div className={style.promptToggleSection}>
+          {scrapedData && (
+            <button
+              type="button"
+              onClick={() => setShowPrompt(!showPrompt)}
+              className={style.secondaryButton}
+            >
+              {showPrompt ? "❌ Ukryj prompty" : "⚙️ Dostosuj prompty AI"}
+            </button>
+          )}
+          {scrapedData && (
+            <select
+              className={style.select}
+              name="LLM"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+            >
+              <optgroup label="Szybkie &amp; Ekonomiczne">
+                <option value="llama-3.1-8b-instant" selected>
+                  Meta: Llama 3.1 8B (Błyskawiczny &amp; darmowy standard)
+                </option>
+                <option value="gemma2-9b-it">
+                  Google: Gemma 2 9B (Kreatywny tekst, świetny po polsku?)
+                </option>
+                <option value="phi-4">
+                  Microsoft: Phi 4 (Precyzyjny i konkretny, bez lania wody)
+                </option>
+                <option value="openai/gpt-oss-20b">
+                  OpenAI: GPT-OSS 20B (Lekki, otwarty model)
+                </option>
+              </optgroup>
 
+              <optgroup label="Premium &amp; Wysoka Inteligencja">
+                <option value="llama-3.3-70b-versatile">
+                  Meta: Llama 3.3 70B (Najlepszy balans jakości)
+                </option>
+                <option value="gemma-27b-it">
+                  Google: Gemma 27B (Bardzo mądry model pośredni)
+                </option>
+                <option value="openai/gpt-oss-120b">
+                  OpenAI: GPT-OSS 120B (Potężny, zaawansowany model)
+                </option>
+                <option value="deepseek-r1-distill-llama-70b">
+                  DeepSeek: R1 Distill Llama 70B (Zaawansowana logika i
+                  przemyślane odpowiedzi)
+                </option>
+              </optgroup>
+
+              <optgroup label="Alternatywne &amp; Niszowe">
+                <option value="qwen-2.5-coder-32b">
+                  Alibaba: Qwen 2.5 Coder 32B (Topowy model do kodu i logiki)
+                </option>
+                <option value="deepseek-chat">
+                  DeepSeek: V3 / Coder (Ekstremalnie tani, jakość GPT-4 w cenie
+                  groszy)
+                </option>
+                <option value="command-r">
+                  Cohere: Command R (Biznesowy model stworzony do marketingu i
+                  copywritingu)
+                </option>
+                <option value="mixtral-8x7b-32768">
+                  Mistral AI: Mixtral 8x7B (Europejski klasyk, ogromny kontekst)
+                </option>
+              </optgroup>
+            </select>
+          )}
+
+          {scrapedData && !generatedData && (
+            <button
+              onClick={() => handleGenerate(false)}
+              disabled={isGenerating}
+              className={style.generateButton}
+            >
+              {isGenerating ? "Generowanie..." : "🚀 Generuj posty na sociale!"}
+            </button>
+          )}
+          {scrapedData && generatedData && (
+            <button
+              onClick={() => handleGenerate(true)} // overwrite: true
+              disabled={isGenerating}
+              className={style.generateButton}
+            >
+              {isGenerating ? "Generowanie..." : "🔄 Wygeneruj ponownie"}
+            </button>
+          )}
+        </div>
+        {scrapedData && (
+          <p className={style.textInfo}>
+            Zaraz po generowaniu w całym tekście zostaną usunięte
+            ukryte/niewidoczne znaki Unicode: zero-width space, BOM. Twarde
+            spacje zostaną zamienione na zwykłe, a także długie pauzy na zwykłe
+            myślniki. Zostaną znormalizowane znaki końca linii \r\n na\n
+          </p>
+        )}
+      </>
       {/* Dynamiczny panel edycji promptu */}
       {showPrompt && (
         <div className={style.promptPanel}>
           <div className={style.promptHeader}>
-            <h3>Główny Prompt Systemowy Groq </h3>
+            <h3>
+              Główny Prompt <b>{model}</b>{" "}
+            </h3>
             <img
               src={Groq}
               alt="Groq"

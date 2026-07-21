@@ -1,113 +1,159 @@
-import style from "./PostProposal.module.css";
 import { useState } from "react";
+import style from "./PostProposal.module.css";
 import { type UploadedAccount } from "../../types/generatedTypes";
 import { useGetAllAccounts } from "../../hooks/accountHooks";
 import { useUploadContent } from "../../hooks/uploadHooks";
 import { useGetHistory } from "../../hooks/generateHooks";
-import { GoDot, GoDotFill } from "react-icons/go";
+import {
+  IoCheckmarkCircle,
+  IoRadioButtonOffOutline,
+  IoCheckmarkCircleOutline,
+} from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+
+interface UploadButtonAndFormProps {
+  platform: string;
+  postId: string;
+}
 
 export default function UploadButtonAndForm({
   platform,
   postId,
-}: {
-  platform: string;
-  postId: string;
-}) {
+}: UploadButtonAndFormProps) {
+  const navigate = useNavigate();
+  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+
   const { data: allAccountsData } = useGetAllAccounts();
-  const { data: historyData, isLoading: isLoadingHistory } = useGetHistory();
+  const { data: historyData } = useGetHistory();
   const { mutate: uploadContent, isPending: isUploadingContent } =
     useUploadContent();
-  const [accountsIds, setAccountsIds] = useState<string[]>([]);
 
+  // Pobieramy konta dla danej platformy
   const platformAccounts =
-    allAccountsData?.groupedAccounts[
+    allAccountsData?.groupedAccounts?.[
       platform as keyof typeof allAccountsData.groupedAccounts
     ] || [];
 
+  // Znajdujemy konkretny post w historii
   const specificPost = historyData?.find(
     (post) => post._id?.toString() === postId,
   );
-  let specificPlatformData = [];
 
-  if (specificPost) {
-    const platformKey = platform as keyof typeof specificPost;
-    const platformData = specificPost[platformKey] as any;
-    specificPlatformData = platformData?.uploaded || [];
-  }
+  // Bezpieczny odczyt danych o wcześniejszych publikacjach na tej platformie
+  const specificPlatformData: UploadedAccount[] =
+    specificPost && platform in specificPost
+      ? (
+          specificPost[platform as keyof typeof specificPost] as {
+            uploaded?: UploadedAccount[];
+          }
+        )?.uploaded || []
+      : [];
+
+  const toggleAccount = (accountId: string) => {
+    setSelectedAccountIds((prev) =>
+      prev.includes(accountId)
+        ? prev.filter((id) => id !== accountId)
+        : [...prev, accountId],
+    );
+  };
 
   const handleSend = () => {
-    if (accountsIds.length === 0)
-      return alert("Wybierz przynajmniej jedno konto!");
+    if (selectedAccountIds.length === 0) return;
 
     uploadContent(
       {
-        platform: platform,
+        platform,
         generatedDataId: postId,
-        accountIds: accountsIds,
+        accountIds: selectedAccountIds,
       },
       {
         onSuccess: () => {
-          setAccountsIds([]);
+          setSelectedAccountIds([]);
         },
       },
     );
   };
 
-  return (
-    <div>
-      {platformAccounts.length > 0 ? (
-        <div>
-          <p>Wyślij na:</p>
-          {platformAccounts.map((account, index) => {
-            const postData = specificPlatformData.find(
-              (object: UploadedAccount) =>
-                object.accountName === account.profileName,
-            );
+  if (platformAccounts.length === 0) {
+    return (
+      <div className={style.emptyAccountsState}>
+        <p>Brak podpiętych kont dla tej platformy.</p>
+        <button
+          className={style.addAccountBtn}
+          onClick={() => navigate("/accounts")}
+        >
+          + Dodaj konto
+        </button>
+      </div>
+    );
+  }
 
-            return (
-              <div className={style.accountCard} key={index}>
-                {postData ? (
-                  <p>
-                    Opublikowano o{" "}
-                    {new Date(postData.createdAt).toLocaleDateString()}
-                  </p>
-                ) : !accountsIds.includes(account._id) ? (
-                  <GoDot
-                    size={35}
-                    color="black"
-                    title="Nie opublikowano"
-                    onClick={() => {
-                      setAccountsIds([...accountsIds, account._id]);
-                    }}
+  return (
+    <div className={style.uploadContainer}>
+      <p className={style.sectionTitle}>Wybierz konta do publikacji:</p>
+
+      <div className={style.accountsList}>
+        {platformAccounts.map((account) => {
+          const publishedData = specificPlatformData.find(
+            (item) => item.accountName === account.profileName,
+          );
+
+          const isPublished = Boolean(publishedData);
+          const isSelected = selectedAccountIds.includes(account._id);
+
+          return (
+            <div
+              key={account._id}
+              className={`${style.accountCard} ${isPublished ? style.published : ""} ${
+                isSelected ? style.selected : ""
+              }`}
+              onClick={() => !isPublished && toggleAccount(account._id)}
+            >
+              <div className={style.statusIcon}>
+                {isPublished ? (
+                  <IoCheckmarkCircle
+                    size={24}
+                    className={style.iconPublished}
+                    title="Już opublikowano"
+                  />
+                ) : isSelected ? (
+                  <IoCheckmarkCircleOutline
+                    size={24}
+                    className={style.iconSelected}
+                    title="Zaznaczone"
                   />
                 ) : (
-                  <GoDotFill
-                    size={35}
-                    color="black"
-                    title="Do publikacji"
-                    onClick={() => {
-                      const allWithout = accountsIds.filter(
-                        (id) => id !== account._id,
-                      );
-                      setAccountsIds(allWithout);
-                    }}
+                  <IoRadioButtonOffOutline
+                    size={24}
+                    className={style.iconUnselected}
+                    title="Kliknij, aby zaznaczyć"
                   />
                 )}
-                <h3>{account.profileName}</h3>
               </div>
-            );
-          })}
-          <button
-            className={style.sendButton}
-            disabled={accountsIds.length === 0 || isUploadingContent}
-            onClick={handleSend}
-          >
-            {isUploadingContent ? "Wysyłanie..." : "Wyślij"}
-          </button>
-        </div>
-      ) : (
-        <p>Dodaj konta</p>
-      )}
+
+              <div className={style.accountInfo}>
+                <h4 className={style.accountName}>{account.profileName}</h4>
+                {isPublished && (
+                  <span className={style.publishedBadge}>
+                    Opublikowano:{" "}
+                    {new Date(publishedData!.createdAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        className={style.sendButton}
+        disabled={selectedAccountIds.length === 0 || isUploadingContent}
+        onClick={handleSend}
+      >
+        {isUploadingContent
+          ? "Wysyłanie..."
+          : `Wyślij na zaznaczone (${selectedAccountIds.length})`}
+      </button>
     </div>
   );
 }

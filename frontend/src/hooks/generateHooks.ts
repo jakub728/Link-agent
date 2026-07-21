@@ -2,15 +2,14 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   type GeneratedPost,
   type ScrapedLinkData,
+  type UpdatePostPayload,
 } from "../types/generatedTypes";
 import api from "../services/api";
-
-const HISTORY_KEY = ["generationHistory"];
 
 // 1. HOOK: Pobieranie historii (Zmieniony na GET i poprawione response.data)
 export const useGetHistory = () => {
   return useQuery<GeneratedPost[]>({
-    queryKey: HISTORY_KEY,
+    queryKey: ["History"],
     queryFn: async () => {
       const response = await api.get("/generate/history");
       return response.data;
@@ -40,19 +39,41 @@ export const useGenerateContent = () => {
 
   return useMutation<
     GeneratedPost,
-    any,
-    Partial<ScrapedLinkData> & { overwrite?: boolean }
+    Partial<ScrapedLinkData> & { overwrite?: boolean; model: string }
   >({
     mutationFn: async (postData) => {
       const response = await api.post("/generate/content", postData);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: HISTORY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["History"] });
     },
     onError: (error: any) => {
       alert(
         error.response?.data?.message || "Błąd podczas generowania treści AI",
+      );
+    },
+  });
+};
+
+export const useEditContent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<string, any, UpdatePostPayload>({
+    mutationFn: async ({ generationId, title, content, platform }) => {
+      const response = await api.patch(`/generate/edit/${generationId}`, {
+        title,
+        content,
+        platform,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["History"] });
+    },
+    onError: (error: any) => {
+      alert(
+        error.response?.data?.message || "Błąd podczas edytowania treści AI",
       );
     },
   });

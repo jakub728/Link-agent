@@ -38,3 +38,18 @@
   background-color: var(--accent);
   color: white;
 }
+
+.manualForm {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manualForm input {
+  border-radius: 5px;
+  padding: 2px;
+  border: 1px solid var(--accent);
+}

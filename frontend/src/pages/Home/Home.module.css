@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.navButton {
+  padding: 15px 21px;
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+  border: none;
+  border-radius: 8px;
+  font-size: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navButton:hover {
+  background-color: var(--bg);
+}

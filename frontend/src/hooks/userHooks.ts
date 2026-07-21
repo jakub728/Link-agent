@@ -20,6 +20,20 @@ export const useUserData = () => {
   };
 };
 
+export const useUserFromId = (id: string) => {
+  const { data: userName } = useQuery<string>({
+    queryKey: ["userName", id],
+    queryFn: async () => {
+      const response = await api.get(`/user/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+  return {
+    userName,
+  };
+};
+
 export const useLogout = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();

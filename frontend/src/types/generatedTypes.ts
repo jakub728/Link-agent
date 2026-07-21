@@ -40,7 +40,8 @@ export interface GeneratedPost {
   wykop: GeneratedPostAll;
   discord: GeneratedPostAll;
   telegram: GeneratedPostAll;
-  createdAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type PlatformType =
@@ -51,3 +52,10 @@ export type PlatformType =
   | "wykop"
   | "discord"
   | "telegram";
+
+export interface UpdatePostPayload {
+  generationId: string;
+  platform: string;
+  title?: string;
+  content?: string;
+}
