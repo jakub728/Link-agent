@@ -197,18 +197,25 @@ router.post(
 
                 const uploadMechanism =
                   registerResponse.data?.value?.uploadMechanism?.[
+                    "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
+                  ] ||
+                  registerResponse.data?.value?.uploadMechanism?.[
                     "com.linkedin.digitalmedia.uploading.MediaUploadMechanism"
                   ];
 
-                if (!uploadMechanism?.uploadUrl) {
+                const uploadData = Array.isArray(uploadMechanism)
+                  ? uploadMechanism[0]
+                  : uploadMechanism;
+                const uploadUrl = uploadData?.uploadUrl;
+                const mediaAssetUrn = registerResponse.data?.value?.asset;
+
+                if (!uploadUrl) {
                   console.error(
-                    "LinkedIn nie zwrócił adresu uploadUrl:",
-                    registerResponse.data,
+                    "Nadal brak uploadUrl z API LinkedIn. Odpowiedź:",
+                    JSON.stringify(registerResponse.data, null, 2),
                   );
                   continue;
                 }
-                const uploadUrl = uploadMechanism.uploadUrl;
-                const mediaAssetUrn = registerResponse.data.value.asset;
 
                 await axios.put(uploadUrl, imageBuffer, {
                   headers: {
