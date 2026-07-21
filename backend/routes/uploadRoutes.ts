@@ -5,7 +5,6 @@ import { checkToken } from "../middleware/checkToken";
 import GeneratedData from "../model/generated";
 import Account from "../model/conectedAccouts";
 
-
 //! ROUTA DO PRZESYŁANIA WYGNEROWANYCH TREŚCI NA PLATFORMY SPOŁECZNOŚCIOWE
 //https://ai.sulisz.pl/upload/content
 const router = express.Router();
@@ -150,10 +149,15 @@ router.post(
               break;
             }
 
-            case "linkedin":
+            case "linkedin": {
               const pageId = account.profileId;
               const pageName = account.profileName;
               const pageToken = account.credentials?.accessToken;
+              const imageUrl = `https://ai.sulisz.pl/public${globalImage}`;
+              const imageResponse = await axios.get(imageUrl, {
+                responseType: "arraybuffer",
+              });
+              const imageBuffer = Buffer.from(imageResponse.data);
 
               if (!pageId || !pageToken) {
                 console.error(
@@ -190,13 +194,23 @@ router.post(
                   },
                   { headers },
                 );
-                const uploadUrl =
-                  registerResponse.data.value.uploadMechanism[
+
+                const uploadMechanism =
+                  registerResponse.data?.value?.uploadMechanism?.[
                     "com.linkedin.digitalmedia.uploading.MediaUploadMechanism"
-                  ].uploadUrl;
+                  ];
+
+                if (!uploadMechanism?.uploadUrl) {
+                  console.error(
+                    "LinkedIn nie zwrócił adresu uploadUrl:",
+                    registerResponse.data,
+                  );
+                  continue;
+                }
+                const uploadUrl = uploadMechanism.uploadUrl;
                 const mediaAssetUrn = registerResponse.data.value.asset;
 
-                await axios.put(uploadUrl, globalImage, {
+                await axios.put(uploadUrl, imageBuffer, {
                   headers: {
                     Authorization: `Bearer ${pageToken}`,
                     "Content-Type": "image/jpg",
@@ -251,7 +265,6 @@ router.post(
                 }
               }
 
-              // Aktualizacja stanu w bazie danych (analogicznie do Twojego FB)
               await GeneratedData.findByIdAndUpdate(generatedDataId, {
                 $push: {
                   "linkedin.uploaded": {
@@ -264,13 +277,16 @@ router.post(
 
               successCount++;
               break;
-            case "reddit":
+            }
+            case "reddit": {
               // Future
               break;
+            }
 
-            case "discord":
+            case "discord": {
               // Future
               break;
+            }
           }
         } catch (singlePublishError) {
           console.error(
