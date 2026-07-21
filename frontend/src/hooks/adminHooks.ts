@@ -1,10 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import api from "../services/api";
 
 // 1. HOOK: Tworzenie nowego użytkownika [Admin]
 export const useCreateUser = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (userData: {
       login: string;

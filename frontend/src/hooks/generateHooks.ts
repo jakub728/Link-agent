@@ -25,7 +25,7 @@ export const useScrapeLink = () => {
       const response = await api.post("/generate/data-from", { url });
       return response.data;
     },
-    onError: (error: any) => {
+    onError: (_error: any) => {
       // alert(
       //   error.response?.data?.message || "Nie udało się pobrać danych z linku",
       // );

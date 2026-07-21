@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import api from "../services/api";
 
 // 1. HOOK: Przesyłanie wygenerowanej treści na platformy społecznościowe

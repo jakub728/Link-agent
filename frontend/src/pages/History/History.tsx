@@ -1,15 +1,9 @@
 import style from "./History.module.css";
-import { useState } from "react";
-import { IoLogoDiscord, IoCopyOutline } from "react-icons/io5";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-
-import { useGetHistory, useScrapeLink } from "../../hooks/generateHooks";
+import { useGetHistory } from "../../hooks/generateHooks";
 
 import HistoryPost from "../../components/HistoryPost/HistoryPost";
 
 export default function History() {
-  
-
   const { data: history, isLoading, isError, error } = useGetHistory();
   if (isLoading) {
     return <div>Ładowanie historii...</div>;
@@ -30,9 +24,6 @@ export default function History() {
     const dataB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return dataB - dataA;
   });
-  
-
-  
 
   return (
     <div className={style.container}>
