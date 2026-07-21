@@ -28,10 +28,24 @@ connect()
 
 //! MIDDLEWARE
 dotenv.config();
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://satkurier-ai-gamma.vercel.app",
+].filter(Boolean) as string[];
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked: Origin ${origin} not allowed.`));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(express.json());
