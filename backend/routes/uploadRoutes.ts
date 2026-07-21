@@ -229,7 +229,7 @@ router.post(
                 const postResponse = await axios.post(
                   "https://api.linkedin.com/v2/ugcPosts",
                   {
-                    author: getOwnerUrn(pageId), 
+                    author: getOwnerUrn(pageId),
                     lifecycleState: "PUBLISHED",
                     specificContent: {
                       "com.linkedin.ugc.ShareContent": {
@@ -268,17 +268,20 @@ router.post(
                   const targetUrn = createdPostUrn.startsWith("urn:")
                     ? createdPostUrn
                     : `urn:li:ugcPost:${createdPostUrn}`;
+
                   const commentText = `Link do artykułu: ${globalLink}`;
 
                   await axios.post(
                     `https://api.linkedin.com/v2/socialActions/${encodeURIComponent(targetUrn)}/comments`,
                     {
                       actor: getOwnerUrn(pageId),
-                      object: targetUrn,
-                      commentary: commentText,
+                      message: {
+                        text: commentText, // ✅ Poprawne pole dla komentarzy w REST API LinkedIn
+                      },
                     },
                     { headers },
                   );
+
                   console.log(
                     `Dodano komentarz z linkiem do LinkedIn: ${targetUrn}`,
                   );
