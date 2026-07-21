@@ -229,10 +229,16 @@ router.post(
                     author: getOwnerUrn(pageId),
                     commentary: postContent,
                     visibility: "PUBLIC",
+                    distribution: {
+                      feedDistribution: "MAIN_FEED",
+                      targetEntities: [],
+                      thirdPartyDistributionChannels: [],
+                    },
                     content: {
                       media: {
-                        title: "Zdjęcie do wpisu",
+                        title: postTitle || "Zdjęcie do wpisu",
                         id: mediaAssetUrn,
+                        status: "READY", 
                       },
                     },
                     lifecycleState: "PUBLISHED",
