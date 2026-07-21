@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import { IoLogoDiscord } from "react-icons/io5";
 import { type PlatformType } from "../../types/generatedTypes";
-import Wykop from "../../assets/wykop.png";
+import Wykop from "../../assets/Wykop.png";
 import UploadButtonAndForm from "./UploadButtonAndForm";
 import { useEditContent } from "../../hooks/generateHooks";
 
