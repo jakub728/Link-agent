@@ -13,10 +13,10 @@ export default function Layout() {
           gap: "10px",
         }}
       >
-        <h1>Satkurier </h1>
+        <h1>SAT Kurier </h1>
         <img
           src={SatkurierAI}
-          style={{ backgroundColor: "white", height: "36px", width: "36px" }}
+          style={{ backgroundColor: "white", height: "45px", width: "45px" }}
         />
       </div>
       <header>
