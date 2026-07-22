@@ -1,10 +1,12 @@
-nav {
+.big {
   background-color: var(--social-bg);
   display: flex;
   justify-content: space-around;
   padding: 1rem;
 }
-
+.small {
+  display: none;
+}
 .navlink {
   text-decoration: none;
   color: var(--text-h);
@@ -23,10 +25,46 @@ nav {
   width: 100px;
   border-radius: 5px;
   font-weight: bold;
+  margin-right: 10px;
 }
 .button:hover {
   background-color: var(--accent-border);
   color: var(--bg);
   transform: scale(1.1);
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .small {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+  }
+  .big {
+    display: none;
+  }
+  .burger {
+    font-size: 35px;
+    color: var(--accent);
+    margin-left: 10px;
+  }
+  .littleNav {
+    position: absolute;
+    background-color: var(--bg);
+    height: 200px;
+    top: 38px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+  }
+  .littleNavlink {
+    text-decoration: none;
+    color: var(--text-h);
+    font-weight: bold;
+    font-size: 25px;
+  }
 }

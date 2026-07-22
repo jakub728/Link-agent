@@ -1,14 +1,16 @@
 .container {
-  display: grid;
-  place-items: center;
-  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: top;
+
+  min-height: 100dvh;
 }
 .form {
-  max-width: 400px;
-  width: 100%;
-  padding: 2rem;
+  width: 90%;
+  padding: 2rem 1.5rem;
   background-color: var(--accent-border);
   border-radius: 25px;
+  height: 200px;
 }
 .label {
   font-weight: bold;
