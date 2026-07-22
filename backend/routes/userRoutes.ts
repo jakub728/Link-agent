@@ -14,7 +14,6 @@ import AIConfig from "../model/prompt";
 
 dotenv.config();
 const router = express.Router();
-const isProduction = process.env.NODE_ENV === "production";
 
 //CHECK USER
 //https://ai.sulisz.pl/user/me
@@ -129,7 +128,6 @@ router.post(
 
       return res.status(200).json({
         message: "Zalogowano pomyślnie",
-        token,
         user: {
           id: user._id,
           login: user.login,
