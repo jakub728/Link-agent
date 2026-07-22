@@ -338,7 +338,7 @@ router.get(
             { upsert: true, new: true },
           );
 
-          return res.redirect("http://localhost:5173/accounts");
+          return res.redirect("https://satkurier-ai-gamma.vercel.app/accounts");
         }
 
         //REDDIT
@@ -399,7 +399,7 @@ router.get(
             { upsert: true, new: true },
           );
 
-          return res.redirect("http://localhost:5173/accounts");
+          return res.redirect("https://satkurier-ai-gamma.vercel.app/accounts");
         }
 
         // FACEBOOK
@@ -499,7 +499,9 @@ router.get(
               { upsert: true, new: true },
             );
           }
-          return res.redirect("http://localhost:5173/accounts?connect=success");
+          return res.redirect(
+            "https://satkurier-ai-gamma.vercel.app/accounts?connect=success",
+          );
         case "wykop":
           return res
             .status(501)
