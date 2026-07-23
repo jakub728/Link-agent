@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./PrivacyPolicie.module.css";
 
 export default function PrivacyPolicy() {
@@ -61,9 +60,9 @@ export default function PrivacyPolicy() {
         </h2>
         <p>
           We do not sell, rent, or share your personal data with third parties.
-          Data is processed solely through official APIs (Meta Graph API,
-          Reddit API, Wykop API, LinkedIn API) to execute actions requested
-          directly by the user.
+          Data is processed solely through official APIs (Meta Graph API, Reddit
+          API, Wykop API, LinkedIn API) to execute actions requested directly by
+          the user.
         </p>
       </section>
 
@@ -72,8 +71,8 @@ export default function PrivacyPolicy() {
           5. User Data Deletion & Access Revocation
         </h2>
         <p>
-          Users have full control over their data and can delete or revoke access
-          at any time:
+          Users have full control over their data and can delete or revoke
+          access at any time:
         </p>
         <ol className={styles.list}>
           <li className={styles.listItem}>
