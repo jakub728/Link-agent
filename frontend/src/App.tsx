@@ -9,6 +9,7 @@ import History from "./pages/History/History";
 import Profiles from "./pages/Profiles/Profiles";
 import AdminPanel from "./pages/Admin/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import PrivacyPolicie from "./pages/Privacy/PrivacyPolicie";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/login" element={<Login />} />
+          <Route path="/privacy_policie" element={<PrivacyPolicie />}/>
           <Route path="*" element={<NotFound />} />
 
           <Route element={<ProtectedRoute />}>

@@ -1,8 +1,9 @@
 .card {
-  max-width: 800px;
-  background: #ffffff;
+  max-width: 1200px;
+  width: 100%;
+  background: var(--accent-bg);
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--social-bg);
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.05),
     0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -29,7 +30,7 @@
   margin: 0 0 6px 0;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--text);
 }
 
 .dates {
@@ -41,19 +42,21 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f9fafb;
-  border: 1px solid #d1d5db;
+  background: var(--bg);
+  border: 1px solid var(--shadow);
+  color: var(--text-h);
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #374151;
+
   transition: background 0.2s ease;
 }
 
 .copyBtn:hover {
   background: #f3f4f6;
+  color: black;
 }
 
 /* Body */
@@ -67,7 +70,8 @@
 }
 
 .imageWrapper {
-  width: 375px;
+  max-width: 375px;
+  width: 100%;
   height: auto;
   border-radius: 8px;
   overflow: hidden;
@@ -135,19 +139,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--bg);
+  border: 1px solid var(--shadow);
+  color: var(--text-h);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #374151;
   transition: all 0.2s ease;
 }
 
 .accordionToggle:hover {
   background-color: #f3f4f6;
   border-color: #d1d5db;
+  color: black;
 }
 
 .accordionToggle.active {
@@ -166,7 +171,7 @@
 .sharesPanel {
   margin-top: 14px;
   padding: 16px;
-  background: #f9fafb;
+  background: var(--accent-bg);
   border-radius: 8px;
   border: 1px solid #e5e7eb;
 }
@@ -185,7 +190,7 @@
 }
 
 .shareCard {
-  background: #ffffff;
+  background: var(--code-bg);
   padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
@@ -201,7 +206,7 @@
 .platformName {
   font-weight: 600;
   font-size: 0.85rem;
-  color: #111827;
+  color: var(--text-h);
 }
 
 .shareBody {
@@ -211,7 +216,7 @@
 
 .accountName {
   font-size: 0.85rem;
-  color: #374151;
+  color: var(--text);
   font-weight: 500;
 }
 

@@ -1,8 +1,20 @@
+.navbar {
+  position: absolute;
+  left: 0;
+  margin: auto;
+  width: 100%;
+  background-color: var(--social-bg);
+}
+
 .big {
   background-color: var(--social-bg);
   display: flex;
   justify-content: space-around;
+  align-items: center;
+  max-width: 1600px;
+  width: 100%;
   padding: 1rem;
+  margin: auto;
 }
 .small {
   display: none;

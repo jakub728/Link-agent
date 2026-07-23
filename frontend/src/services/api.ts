@@ -14,7 +14,13 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("user_session");
 
-      if (!window.location.pathname.includes("/login")) {
+      const publicPaths = ["/login", "/privacy_policie", "/privacy-policy"];
+
+      const isPublicPath = publicPaths.some((path) =>
+        window.location.pathname.includes(path),
+      );
+
+      if (!isPublicPath) {
         window.location.href = "/login";
       }
     }

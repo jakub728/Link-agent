@@ -11,35 +11,36 @@ export default function Navbar() {
 
   return isLoggedIn ? (
     <>
-      <nav className={styles.big}>
-        <NavLink className={styles.navlink} to="/">
-          Home
-        </NavLink>
-        <NavLink className={styles.navlink} to="/generate">
-          Generuj
-        </NavLink>
-        <NavLink className={styles.navlink} to="/history">
-          Historia
-        </NavLink>
-        <NavLink className={styles.navlink} to="/accounts">
-          Konta
-        </NavLink>
-        {role === "admin" && (
-          <NavLink className={styles.navlink} to="/admin">
-            Admin
+      <nav className={styles.navbar}>
+        <div className={styles.big}>
+          <NavLink className={styles.navlink} to="/">
+            Home
           </NavLink>
-        )}
-        <button
-          className={styles.button}
-          onClick={() => {
-            logout();
-          }}
-          disabled={isLoggingOut}
-        >
-          Wyloguj
-        </button>
+          <NavLink className={styles.navlink} to="/generate">
+            Generuj
+          </NavLink>
+          <NavLink className={styles.navlink} to="/history">
+            Historia
+          </NavLink>
+          <NavLink className={styles.navlink} to="/accounts">
+            Konta
+          </NavLink>
+          {role === "admin" && (
+            <NavLink className={styles.navlink} to="/admin">
+              Admin
+            </NavLink>
+          )}
+          <button
+            className={styles.button}
+            onClick={() => {
+              logout();
+            }}
+            disabled={isLoggingOut}
+          >
+            Wyloguj
+          </button>
+        </div>
       </nav>
-
       <nav className={styles.small}>
         <GiHamburgerMenu
           onClick={() => {

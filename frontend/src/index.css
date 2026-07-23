@@ -8,7 +8,7 @@
   --accent: #e03127;
   --accent-bg: rgba(79, 70, 229, 0.08);
   --accent-border: #df312891;
-  --social-bg: rgba(237, 242, 247, 0.6);
+  --social-bg: rgba(237, 242, 247, 1);
   --shadow: rgba(149, 157, 165, 0.1) 0px 8px 24px;
 
   /* CZCIONKI */
@@ -58,6 +58,16 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+main {
+  margin-top: 100px;
+}
+
+.skimage {
+  background-color: var(--bg);
+  height: 45px;
+  width: 45px;
 }
 
 h1,

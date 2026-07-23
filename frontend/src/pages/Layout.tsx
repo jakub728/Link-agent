@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import "../index.css";
 import Navbar from "../components/Navbar/Navbar";
 import SatkurierAI from "../assets/Satkurier.png";
 
@@ -14,10 +15,7 @@ export default function Layout() {
         }}
       >
         <h1>SAT Kurier </h1>
-        <img
-          src={SatkurierAI}
-          style={{ backgroundColor: "white", height: "45px", width: "45px" }}
-        />
+        <img src={SatkurierAI} className="skimage" />
       </div>
       <header>
         <Navbar />
