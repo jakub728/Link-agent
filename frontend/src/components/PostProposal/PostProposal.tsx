@@ -103,7 +103,6 @@ export default function PostProposal({
   const IconComponent = config.icon;
 
   const isX = platform === "x";
-  const platformClass = isX ? style.xPlatform : "";
 
   const [editPost, setEditPost] = useState(false);
   const [newTitle, setNewTitle] = useState(contentData.title || "");
