@@ -32,6 +32,7 @@ dotenv.config();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://satkurier-ai-gamma.vercel.app",
+  "https://ai.satkurier.pl",
 ].filter(Boolean) as string[];
 
 app.use(
