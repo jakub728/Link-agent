@@ -338,7 +338,7 @@ router.get(
             { upsert: true, new: true },
           );
 
-          return res.redirect("https://satkurier-ai-gamma.vercel.app/accounts");
+          return res.redirect("https://ai.satkurier.pl/accounts");
         }
 
         //REDDIT
@@ -399,7 +399,7 @@ router.get(
             { upsert: true, new: true },
           );
 
-          return res.redirect("https://satkurier-ai-gamma.vercel.app/accounts");
+          return res.redirect("https://ai.satkurier.pl/accounts");
         }
 
         // FACEBOOK
@@ -500,7 +500,7 @@ router.get(
             );
           }
           return res.redirect(
-            "https://satkurier-ai-gamma.vercel.app/accounts?connect=success",
+            "https://ai.satkurier.pl/accounts?connect=success",
           );
         case "wykop":
           return res
