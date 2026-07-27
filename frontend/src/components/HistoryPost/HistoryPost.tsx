@@ -2,6 +2,7 @@ import style from "./HistoryPost.module.css";
 import { type GeneratedPost } from "../../types/generatedTypes";
 import { useState } from "react";
 import wykop from "../../assets/Wykop.png";
+import wykop_grey from "../../assets/Wykop_grey.png";
 import {
   FaFacebook,
   FaLinkedin,
@@ -169,10 +170,9 @@ export default function HistoryPost({ post: Post }: HistoryPost) {
             />
 
             <img
-              src={wykop}
+              src={Post.wykop?.uploaded?.length ? wykop : wykop_grey}
               alt="Wykop"
               className={style.wykopIcon}
-              style={{ opacity: Post.wykop?.uploaded?.length ? 1 : 0.25 }}
             />
           </div>
         </div>

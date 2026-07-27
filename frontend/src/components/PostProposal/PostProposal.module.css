@@ -4,7 +4,8 @@
 
 .resultComponent {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 595px));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 700px));
+  justify-content: center;
   gap: 10px;
 }
 
@@ -346,4 +347,16 @@
   cursor: pointer;
   font-weight: 500;
   margin-top: 10px;
+}
+
+.xPlatform {
+  color: #000000;
+  border-color: #000000 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .xPlatform {
+    color: #ffffff;
+    border-color: #ffffff !important;
+  }
 }

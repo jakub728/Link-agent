@@ -28,7 +28,7 @@ export default function History() {
   return (
     <div className={style.container}>
       <h2>Historia generowań</h2>
-      <div>
+      <div className={style.historyPost}>
         {sortedHistory.map((post) => (
           <HistoryPost key={post._id} post={post} />
         ))}

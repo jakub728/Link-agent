@@ -52,7 +52,7 @@ const PLATFORM_CONFIG: Record<PlatformType, PlatformItemConfig> = {
   },
   x: {
     label: "X (Twitter)",
-    color: "#000000",
+    color: "var(--bg)",
     icon: FaTwitterSquare,
     hasTitle: false,
   },
@@ -102,6 +102,9 @@ export default function PostProposal({
 
   const IconComponent = config.icon;
 
+  const isX = platform === "x";
+  const platformClass = isX ? style.xPlatform : "";
+
   const [editPost, setEditPost] = useState(false);
   const [newTitle, setNewTitle] = useState(contentData.title || "");
   const [newContent, setNewContent] = useState(contentData.content || "");
@@ -134,8 +137,11 @@ export default function PostProposal({
     <div className={style.card}>
       <div className={style.header} style={{ borderLeftColor: config.color }}>
         <div className={style.headerSmall}>
-          <IconComponent size={30} color={config.color} />
-          <span className={style.label} style={{ color: config.color }}>
+          <IconComponent size={30} color={!isX ? config.color : undefined} />
+          <span
+            className={style.label}
+            style={!isX ? { color: config.color } : undefined}
+          >
             {config.label}
           </span>
         </div>
