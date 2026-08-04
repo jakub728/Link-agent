@@ -28,7 +28,13 @@ export default function Home() {
           className={style.navButton}
           onClick={() => navigate("/history")}
         >
-          <span>3. Historia →</span>
+          <span>3. Historia generowania →</span>
+        </button>
+        <button
+          className={style.navButton}
+          onClick={() => navigate("/recent-posts")}
+        >
+          <span>4. Wstawione posty →</span>
         </button>
       </div>
     </>
