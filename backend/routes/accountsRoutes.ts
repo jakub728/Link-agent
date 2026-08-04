@@ -7,6 +7,7 @@ import { type AuthenticatedRequest } from "../types/userInterface";
 import { checkToken } from "../middleware/checkToken";
 import Account from "../model/conectedAccouts";
 import { type ConnectedAccoutInterface } from "../types/conectedInterface";
+import axios from "axios";
 
 const router = express.Router();
 
@@ -539,60 +540,78 @@ router.get(
       }
 
       let recentPosts: any[] = [];
+      const accessToken = account.credentials?.accessToken;
+
+      if (!accessToken) {
+        return res
+          .status(400)
+          .json({ message: "Brak tokena dostępu dla wybranego konta." });
+      }
 
       if (account.platform === "facebook") {
-        const url = `https://graph.facebook.com/v19.0/${account.profileId}/posts?fields=id,message,created_time,permalink_url&limit=10&access_token=${account.credentials.accessToken}`;
+        const response = await axios.get(
+          `https://graph.facebook.com/v19.0/${account.profileId}/posts`,
+          {
+            params: {
+              fields: "id,message,created_time,permalink_url,full_picture",
+              limit: 10,
+              access_token: accessToken,
+            },
+          }
+        );
 
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error?.message ||
-              "Błąd podczas pobierania z Facebook Graph API",
-          );
-        }
-
-        recentPosts = (data.data || []).map((post: any) => ({
+        recentPosts = (response.data.data || []).map((post: any) => ({
           id: post.id,
           content: post.message || "",
           createdAt: post.created_time,
           url: post.permalink_url,
+          imageUrl: post.full_picture || null,
         }));
+
       } else if (account.platform === "linkedin") {
-        const url = `https://api.linkedin.com/v2/posts?author=urn:li:person:${account.profileId}&q=author`;
+        const authorUrn = account.profileId.startsWith("urn:li:") 
+          ? account.profileId 
+          : `urn:li:person:${account.profileId}`;
 
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${account.credentials.accessToken}`,
-            "LinkedIn-Version": "202401",
-            "X-Restli-Protocol-Version": "2.0.0",
-          },
-        });
+        const response = await axios.get(
+          `https://api.linkedin.com/v2/posts`,
+          {
+            params: {
+              author: authorUrn,
+              q: "author",
+            },
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "LinkedIn-Version": "202401",
+              "X-Restli-Protocol-Version": "2.0.0",
+            },
+          }
+        );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message || "Błąd podczas pobierania z LinkedIn API",
-          );
-        }
-
-        recentPosts = (data.elements || []).map((post: any) => ({
+        recentPosts = (response.data.elements || []).map((post: any) => ({
           id: post.id,
           content: post.commentary || post.text || "",
           createdAt: post.createdAt,
           url: `https://www.linkedin.com/feed/update/${post.id}`,
+          imageUrl: post.imageUrl || post.mediaUrl || null,
         }));
       }
+
       return res.status(200).json({
         success: true,
         platform: account.platform,
         posts: recentPosts,
       });
-    } catch (error) {
-      console.error(error);
-      next(error);
+
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || error.response?.data?.error?.message || error.message;
+      console.error("Błąd pobierania postów z zewnętrznego API:", errorMsg);
+      
+      return res.status(500).json({
+        success: false,
+        message: "Błąd podczas pobierania postów z zewnętrznego serwisu",
+        error: errorMsg,
+      });
     }
   },
 );
