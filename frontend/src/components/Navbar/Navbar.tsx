@@ -20,7 +20,10 @@ export default function Navbar() {
             Generuj
           </NavLink>
           <NavLink className={styles.navlink} to="/history">
-            Historia
+            Historia generowania
+          </NavLink>
+          <NavLink className={styles.navlink} to="/recent-posts">
+            Ostatnie posty
           </NavLink>
           <NavLink className={styles.navlink} to="/accounts">
             Konta

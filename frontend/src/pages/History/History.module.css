@@ -20,9 +20,6 @@
 .copyIcon:hover {
   color: var(--text-h);
 }
-img {
-  max-width: 500px;
-}
 
 .buttons {
   display: flex;

@@ -14,7 +14,7 @@ export default function Layout() {
           gap: "10px",
         }}
       >
-        <h1>SAT Kurier </h1>
+        <h1>SAT Kurier</h1>
         <img src={SatkurierAI} className="skimage" />
       </div>
       <header>

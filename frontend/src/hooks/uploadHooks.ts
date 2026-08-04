@@ -22,6 +22,7 @@ export const useUploadContent = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["History"] });
+      queryClient.invalidateQueries({ queryKey: ["Posts"] });
     },
   });
 };

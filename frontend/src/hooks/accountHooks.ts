@@ -65,7 +65,6 @@ export const useConnectPlatform = () => {
     onSuccess: (data) => {
       if (data.isManual) {
         console.log("Konto manualne zostało pomyślnie dodane.");
-        // Tutaj możesz dodać np. queryClient.invalidateQueries({ queryKey: ACCOUNT_KEY });
         return;
       }
 
@@ -99,5 +98,21 @@ export const useDisconnectAccount = () => {
     onError: (error) => {
       console.error("Błąd podczas odłączania konta:", error);
     },
+  });
+};
+
+// 4. HOOK: Pobieranie ostatnich postów z danego social konta
+// GET /connect/account/recent-posts/:id
+export const useGetRecentPosts = (accountId: string) => {
+  return useQuery({
+    queryKey: ["Posts", accountId],
+    queryFn: async () => {
+      const response = await api.get(
+        `/connect/account/recent-posts/${accountId}`,
+      );
+      return response.data;
+    },
+    enabled: !!accountId,
+    staleTime: 1000 * 60 * 10,
   });
 };

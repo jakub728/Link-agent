@@ -10,6 +10,7 @@ import Profiles from "./pages/Profiles/Profiles";
 import AdminPanel from "./pages/Admin/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import PrivacyPolicie from "./pages/Privacy/PrivacyPolicie";
+import RecentPosts from "./pages/Posts/RecentPosts";
 
 function App() {
   return (
@@ -17,15 +18,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/login" element={<Login />} />
-          <Route path="/privacy_policie" element={<PrivacyPolicie />}/>
+          <Route path="/privacy_policie" element={<PrivacyPolicie />} />
           <Route path="*" element={<NotFound />} />
 
           <Route element={<ProtectedRoute />}>
             <Route index element={<Home />} />
             <Route path="/generate" element={<Generate />} />
             <Route path="/history" element={<History />} />
-            <Route path="/accounts" element={<Profiles />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/accounts" element={<Profiles />} />
+            <Route path="/recent-posts" element={<RecentPosts />} />
           </Route>
         </Route>
       </Routes>
