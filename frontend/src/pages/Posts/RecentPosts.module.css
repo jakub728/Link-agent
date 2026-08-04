@@ -138,18 +138,20 @@
 
 .imageContainer {
   width: 100%;
-  margin: 12px 0 0 0; /* Odstęp od góry (od treści) */
-  max-height: 400px;
-  overflow: hidden;
-  border-radius: 8px; /* Zaokrąglone rogi samego zdjęcia */
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
   background-color: var(--code-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
 }
 
 .postImage {
-  width: 100%;
-  height: 100%;
-  max-height: 400px;
-  object-fit: cover;
+  width: 100%; /* Dopasowuje się do szerokości kontenera, jeśli zdjęcie jest za szerokie */
+  height: auto; /* Zachowuje oryginalne proporcje i naturalną wysokość zdjęcia */
+  max-width: 100%; /* Nigdy nie pozwoli mu być szerszym niż kontener */
+  object-fit: contain;
   display: block;
 }
 
