@@ -517,6 +517,88 @@ router.get(
   },
 );
 
+//Endpoint do pobierania postów z konta
+//https://ai.sulisz.pl/connect/account/posts
+router.get(
+  "/recent-posts/:accountId",
+  checkToken,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const { accountId } = req.params;
+      const userId = req.user?.userId;
+
+      const account = await Account.findOne({
+        _id: accountId,
+        userId: userId,
+      });
+
+      if (!account) {
+        return res
+          .status(404)
+          .json({ message: "Konto nie zostało znalezione." });
+      }
+
+      let recentPosts: any[] = [];
+
+      if (account.platform === "facebook") {
+        const url = `https://graph.facebook.com/v19.0/${account.profileId}/posts?fields=id,message,created_time,permalink_url&limit=10&access_token=${account.credentials.accessToken}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error?.message ||
+              "Błąd podczas pobierania z Facebook Graph API",
+          );
+        }
+
+        recentPosts = (data.data || []).map((post: any) => ({
+          id: post.id,
+          content: post.message || "",
+          createdAt: post.created_time,
+          url: post.permalink_url,
+        }));
+      } else if (account.platform === "linkedin") {
+        const url = `https://api.linkedin.com/v2/posts?author=urn:li:person:${account.profileId}&q=author`;
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${account.credentials.accessToken}`,
+            "LinkedIn-Version": "202401",
+            "X-Restli-Protocol-Version": "2.0.0",
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Błąd podczas pobierania z LinkedIn API",
+          );
+        }
+
+        recentPosts = (data.elements || []).map((post: any) => ({
+          id: post.id,
+          content: post.commentary || post.text || "",
+          createdAt: post.createdAt,
+          url: `https://www.linkedin.com/feed/update/${post.id}`,
+        }));
+      }
+      return res.status(200).json({
+        success: true,
+        platform: account.platform,
+        posts: recentPosts,
+      });
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+);
+
+//Endpoint do usuwania konta
+//https://ai.sulisz.pl/connect/account/delete/:accountId
 router.delete(
   "/delete/:accountId",
   checkToken,
