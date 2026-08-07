@@ -11,6 +11,7 @@ import AdminPanel from "./pages/Admin/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import PrivacyPolicie from "./pages/Privacy/PrivacyPolicie";
 import RecentPosts from "./pages/Posts/RecentPosts";
+import Parser from "./pages/Parser/Parser";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/accounts" element={<Profiles />} />
             <Route path="/recent-posts" element={<RecentPosts />} />
+            <Route path="/parser" element={<Parser />} />
           </Route>
         </Route>
       </Routes>

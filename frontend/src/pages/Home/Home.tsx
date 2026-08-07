@@ -8,7 +8,10 @@ export default function Home() {
 
   return (
     <>
-      <h1 style={{ marginTop: "100px" }}>Witaj z powrotem {user?.login}!</h1>
+      <h1 style={{ marginTop: "100px" }}>
+        Witaj z powrotem{" "}
+        {user?.login && user.login[0].toUpperCase() + user.login.slice(1)}!
+      </h1>
       <div className={style.container}>
         <button
           className={style.navButton}

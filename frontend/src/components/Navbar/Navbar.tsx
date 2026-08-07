@@ -28,6 +28,9 @@ export default function Navbar() {
           <NavLink className={styles.navlink} to="/accounts">
             Konta
           </NavLink>
+          <NavLink className={styles.navlink} to="/parser">
+            PARSER
+          </NavLink>
           {role === "admin" && (
             <NavLink className={styles.navlink} to="/admin">
               Admin
